@@ -1,6 +1,6 @@
 # Dkx Game Club OS/Manager
 
-Open-source Telegram WebApp and club management system for gaming clubs. The project combines a PHP backend, SQLite storage, Telegram bot/webhook flows, a customer-facing WebApp, and an admin panel for bookings, points, tasks, referrals, and notifications.
+Open-source Telegram-first platform for gaming club operations, player engagement, and AI-assisted analytics. The project combines a PHP backend, SQLite storage, Telegram bot/webhook flows, a customer-facing WebApp, and an admin panel for bookings, points, tasks, referrals, ranks, daily rewards, and operational statistics.
 
 ## Why this repository exists
 
@@ -16,11 +16,21 @@ This repository is the public OSS version of the club management platform previo
 
 - Telegram WebApp entrypoint with request validation
 - Booking flow for gaming PCs
-- Admin interface for computers, bookings, users, tasks, and points
-- Loyalty points, ranks, referrals, and notifications
+- Admin interface for computers, bookings, users, tasks, points, and statistics
+- Loyalty points, user ranks, daily rewards, tap-to-earn bonuses, referrals, and notifications
+- Task-based engagement flows such as social actions and promotional activities
+- AI-oriented analytics for user behavior, booking trends, visitor peaks, and operational recommendations
 - Email verification flow via SMTP + PHPMailer
 - Russian / Uzbek UI split via `/` and `/uz`
 - SQLite-based storage for quick local setup
+
+## Product overview
+
+Dkx Game Club OS/Manager is designed as an open-source operating system for gaming clubs that want both operational tooling and player retention mechanics in one place.
+
+On the player side, the system provides a Telegram-connected WebApp where users can book PCs, register profiles, accumulate loyalty points, unlock higher ranks based on total progress, claim daily bonuses, use a tap-to-earn mechanic with a capped daily reward, complete engagement tasks such as subscribing to social channels, and invite friends through referral links to earn additional rewards.
+
+On the operations side, administrators can manage PC statuses, review bookings, track users, assign tasks, adjust balances, and monitor activity through a Telegram-connected admin interface. The platform also includes an AI-oriented analytics layer focused on practical decision support: analyzing user behavior, identifying which halls and individual PCs are booked most often, detecting which days bring the highest visitor traffic, and producing suggestions that help improve retention, utilization, and overall club performance.
 
 ## Tech stack
 
