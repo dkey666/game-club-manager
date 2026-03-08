@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Reporting
+    url: https://github.com/dkey666/dkx-game-club-os-manager/security/policy
+    about: Report sensitive vulnerabilities privately instead of opening a public issue.
+  - name: Contribution Guide
+    url: https://github.com/dkey666/dkx-game-club-os-manager/blob/main/CONTRIBUTING.md
+    about: Read the contribution workflow and local setup notes before opening a pull request.
