@@ -112,6 +112,8 @@ Important values:
 - `GROUP_ID`: Telegram group/channel identifier
 - `DB_NAME`: SQLite file name
 - `SMTP_*`: email delivery settings
+- `OPENAI_API_KEY`: API key for the analytics module
+- `OPENAI_MODEL`: model name for analytics requests, default `gpt-5.4`
 
 ## Dependencies
 
