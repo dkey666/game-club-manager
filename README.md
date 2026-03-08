@@ -49,6 +49,7 @@ This repository is the public OSS version of the club management platform previo
 │   ├── architecture.md
 │   ├── installation.md
 │   └── ai-module.md
+├── screenshots/           # Product and interface screenshots
 ├── composer.json          # PHP dependency manifest
 ├── package.json           # Optional Node utility manifest
 ├── CHANGELOG.md
@@ -126,6 +127,34 @@ Node dependencies are managed through [package.json](package.json).
 - [AI Module Notes](docs/ai-module.md)
 - [Changelog](CHANGELOG.md)
 - [Roadmap](ROADMAP)
+
+## Screenshots
+
+### Bot and onboarding
+
+![Bot start](screenshots/bot-start.jpg)
+![Preloader](screenshots/preloader-screen.jpg)
+![Registration flow](screenshots/registration-flow.jpg)
+
+### Main WebApp
+
+![Main homepage](screenshots/main-homepage.jpg)
+![Main homepage secondary](screenshots/main-homepage-secondary.jpg)
+![Main homepage ranking](screenshots/main-homepage-ranking.jpg)
+
+### Booking and profile
+
+![Booking page](screenshots/booking-page.jpg)
+![Booking select](screenshots/booking-select.jpg)
+![Profile page](screenshots/profile-page.jpg)
+![Profile history](screenshots/profile-history.jpg)
+![Profile statistics](screenshots/profile-statistics.jpg)
+
+### Content pages
+
+![About page](screenshots/about-page.jpg)
+![About page secondary](screenshots/about-page-secondary.jpg)
+![About page social](screenshots/about-page-social.jpg)
 
 ## License
 
