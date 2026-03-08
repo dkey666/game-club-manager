@@ -1,0 +1,21 @@
+{
+  "name": "dkx-game-club-os-manager",
+  "version": "0.1.0",
+  "description": "Open-source Telegram WebApp and club management system for gaming clubs.",
+  "main": "database.js",
+  "scripts": {
+    "db:init": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0"
+  },
+  "keywords": [
+    "telegram-webapp",
+    "game-club",
+    "club-management",
+    "gaming",
+    "sqlite"
+  ],
+  "author": "Dkx Game Club OS/Manager contributors",
+  "license": "MIT"
+}

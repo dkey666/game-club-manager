@@ -1,0 +1,76 @@
+# Environment and secrets
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+!.env.example
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal
+
+# Logs and runtime artifacts
+*.log
+*_debug.txt
+*.pid
+*.seed
+security.log
+webhook_log.txt
+email_test.log
+resend.log
+registration.log
+test_log.txt
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.settings/
+
+# Dependency directories
+node_modules/
+/vendor/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# User uploads and generated assets
+uploads/
+images/user_uploads/
+files/
+media/
+analytics/
+reports/
+cache/
+storage/cache/
+
+# Local diagnostics and scratch files
+debug.php
+phpinfo.php
+check_db.php
+test-api.php
+test.php
+__dump_schema.php

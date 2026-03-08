@@ -1,0 +1,358 @@
+/* CSS Custom Properties для динамического управления */
+:root {
+    --rank-primary-rgb: 0, 122, 255;
+    --rank-secondary-rgb: 88, 86, 214;
+    --rank-accent-rgb: 48, 209, 88;
+    --rank-glow-intensity: 0;
+    --rank-animation-speed: 3s;
+    --rank-border-width: 1px;
+    --rank-shadow-blur: 0px;
+    --rank-transform-scale: 1;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(0, 122, 255, 0.3);
+    --rank-bg-primary: rgba(0, 122, 255, 0.1);
+    --rank-bg-secondary: rgba(88, 86, 214, 0.08);
+    --rank-bg-accent: rgba(48, 209, 88, 0.06);
+}
+
+/* ===========================================
+   БАЗОВЫЕ УЛУЧШЕНИЯ ПРОФИЛЬНОЙ КАРТОЧКИ
+   =========================================== */
+
+/* Основные стили для profile-header — только градиент, без свечения */
+body[data-rank] .profile-header {
+    border-width: var(--rank-border-width);
+    border-color: var(--rank-border-color);
+    transform: scale(var(--rank-transform-scale));
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg,
+        var(--rank-bg-primary) 0%,
+        var(--rank-bg-secondary) 50%,
+        var(--rank-bg-accent) 100%
+    ) !important;
+    /* УДАЛЕНО: box-shadow, animation */
+}
+
+/* Улучшения аватара — без теней и hover-анимаций */
+body[data-rank] .profile-avatar {
+    background: linear-gradient(135deg, 
+        rgba(var(--rank-primary-rgb), 1), 
+        rgba(var(--rank-secondary-rgb), 1)) !important;
+    border: 2px solid var(--rank-border-color) !important;
+    /* УДАЛЕНО: box-shadow, transition, hover */
+}
+
+/* Улучшения текста имени — без свечения */
+body[data-rank] .profile-name {
+    background: linear-gradient(90deg, 
+        rgba(var(--rank-primary-rgb), 0.9), 
+        rgba(var(--rank-secondary-rgb), 0.9), 
+        rgba(var(--rank-accent-rgb), 0.9)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    /* УДАЛЕНО: text-shadow */
+    position: relative;
+}
+
+/* Улучшения баланса — без свечения и анимаций */
+body[data-rank] .balance-amount {
+    color: rgba(var(--rank-accent-rgb), 1) !important;
+    /* УДАЛЕНО: text-shadow, transition, hover */
+    font-weight: 700 !important;
+}
+
+/* ===========================================
+   LUXURY ГРАДИЕНТНАЯ ПРОГРЕССИЯ ПО РАНГАМ
+   =========================================== */
+
+/* Ранг 1: Ледяной кварц */
+body[data-rank="1"] {
+    --rank-primary-rgb: 173, 216, 230;
+    --rank-secondary-rgb: 135, 206, 235;
+    --rank-accent-rgb: 224, 255, 255;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(173, 216, 230, 0.3);
+    --rank-bg-primary: rgba(173, 216, 230, 0.06);
+    --rank-bg-secondary: rgba(135, 206, 235, 0.05);
+    --rank-bg-accent: rgba(224, 255, 255, 0.04);
+    --rank-border-width: 1px;
+    --rank-transform-scale: 1;
+}
+
+/* Ранг 2: Глубокий лёд */
+body[data-rank="2"] {
+    --rank-primary-rgb: 100, 149, 237;
+    --rank-secondary-rgb: 70, 130, 180;
+    --rank-accent-rgb: 173, 216, 230;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(100, 149, 237, 0.3);
+    --rank-bg-primary: rgba(100, 149, 237, 0.07);
+    --rank-bg-secondary: rgba(70, 130, 180, 0.06);
+    --rank-bg-accent: rgba(173, 216, 230, 0.05);
+    --rank-border-width: 2px;
+    --rank-transform-scale: 1.002;
+}
+
+/* Ранг 3: Стальной сплав */
+body[data-rank="3"] {
+    --rank-primary-rgb: 70, 130, 180;
+    --rank-secondary-rgb: 47, 79, 79;
+    --rank-accent-rgb: 192, 192, 192;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(70, 130, 180, 0.3);
+    --rank-bg-primary: rgba(70, 130, 180, 0.08);
+    --rank-bg-secondary: rgba(47, 79, 79, 0.07);
+    --rank-bg-accent: rgba(192, 192, 192, 0.06);
+    --rank-border-width: 2px;
+    --rank-transform-scale: 1.004;
+}
+
+/* Ранг 4: Титановый */
+body[data-rank="4"] {
+    --rank-primary-rgb: 89, 89, 89;
+    --rank-secondary-rgb: 169, 169, 169;
+    --rank-accent-rgb: 211, 211, 211;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(89, 89, 89, 0.3);
+    --rank-bg-primary: rgba(89, 89, 89, 0.09);
+    --rank-bg-secondary: rgba(169, 169, 169, 0.08);
+    --rank-bg-accent: rgba(211, 211, 211, 0.07);
+    --rank-border-width: 3px;
+    --rank-transform-scale: 1.006;
+}
+
+/* Ранг 5: Холодный металлик */
+body[data-rank="5"] {
+    --rank-primary-rgb: 70, 130, 180;
+    --rank-secondary-rgb: 100, 149, 237;
+    --rank-accent-rgb: 173, 216, 230;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(70, 130, 180, 0.3);
+    --rank-bg-primary: rgba(70, 130, 180, 0.1);
+    --rank-bg-secondary: rgba(100, 149, 237, 0.09);
+    --rank-bg-accent: rgba(173, 216, 230, 0.08);
+    --rank-border-width: 3px;
+    --rank-transform-scale: 1.008;
+}
+
+/* Ранг 6: Графитовый */
+body[data-rank="6"] {
+    --rank-primary-rgb: 47, 79, 79;
+    --rank-secondary-rgb: 105, 105, 105;
+    --rank-accent-rgb: 169, 169, 169;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(47, 79, 79, 0.3);
+    --rank-bg-primary: rgba(47, 79, 79, 0.11);
+    --rank-bg-secondary: rgba(105, 105, 105, 0.1);
+    --rank-bg-accent: rgba(169, 169, 169, 0.09);
+    --rank-border-width: 3px;
+    --rank-transform-scale: 1.01;
+}
+
+/* Ранг 7: Аметистовый */
+body[data-rank="7"] {
+    --rank-primary-rgb: 102, 51, 153;
+    --rank-secondary-rgb: 147, 112, 219;
+    --rank-accent-rgb: 230, 230, 250;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(102, 51, 153, 0.3);
+    --rank-bg-primary: rgba(102, 51, 153, 0.12);
+    --rank-bg-secondary: rgba(147, 112, 219, 0.11);
+    --rank-bg-accent: rgba(230, 230, 250, 0.1);
+    --rank-border-width: 4px;
+    --rank-transform-scale: 1.012;
+}
+
+/* Ранг 8: Сапфировый */
+body[data-rank="8"] {
+    --rank-primary-rgb: 75, 0, 130;
+    --rank-secondary-rgb: 102, 51, 153;
+    --rank-accent-rgb: 147, 112, 219;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(75, 0, 130, 0.3);
+    --rank-bg-primary: rgba(75, 0, 130, 0.13);
+    --rank-bg-secondary: rgba(102, 51, 153, 0.12);
+    --rank-bg-accent: rgba(147, 112, 219, 0.11);
+    --rank-border-width: 4px;
+    --rank-transform-scale: 1.014;
+}
+
+/* Ранг 9: Платиновый */
+body[data-rank="9"] {
+    --rank-primary-rgb: 192, 192, 192;
+    --rank-secondary-rgb: 211, 211, 211;
+    --rank-accent-rgb: 220, 220, 220;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(192, 192, 192, 0.3);
+    --rank-bg-primary: rgba(192, 192, 192, 0.14);
+    --rank-bg-secondary: rgba(211, 211, 211, 0.13);
+    --rank-bg-accent: rgba(220, 220, 220, 0.12);
+    --rank-border-width: 5px;
+    --rank-transform-scale: 1.016;
+}
+
+/* Ранг 10: Белая платина */
+body[data-rank="10"] {
+    --rank-primary-rgb: 255, 255, 255;
+    --rank-secondary-rgb: 245, 245, 245;
+    --rank-accent-rgb: 220, 220, 220;
+    --rank-glow-color: transparent;
+    --rank-border-color: rgba(255, 255, 255, 0.3);
+    --rank-bg-primary: rgba(255, 255, 255, 0.15);
+    --rank-bg-secondary: rgba(245, 245, 245, 0.14);
+    --rank-bg-accent: rgba(220, 220, 220, 0.13);
+    --rank-border-width: 6px;
+    --rank-transform-scale: 1.018;
+    --rank-animation-speed: 2s;
+}
+
+/* ===========================================
+   УЛУЧШЕНИЯ ДЛЯ ОСТАЛЬНЫХ ЭЛЕМЕНТОВ
+   =========================================== */
+
+/* Карточки информации — без теней и hover-анимаций */
+body[data-rank] .info-card {
+    border-color: var(--rank-border-color);
+    background: linear-gradient(135deg,
+        rgba(var(--rank-primary-rgb), 0.05) 0%,
+        rgba(var(--rank-secondary-rgb), 0.03) 50%,
+        rgba(var(--rank-accent-rgb), 0.02) 100%
+    );
+    /* УДАЛЕНО: box-shadow, transition, hover */
+}
+
+/* Статистические карточки — без теней и hover-анимаций */
+body[data-rank] .stat-card {
+    border: 1px solid var(--rank-border-color);
+    background: linear-gradient(135deg,
+        rgba(var(--rank-primary-rgb), 0.04) 0%,
+        rgba(var(--rank-secondary-rgb), 0.02) 100%
+    );
+    /* УДАЛЕНО: box-shadow, transition, hover */
+}
+
+/* Блок ранга — НАСТОЯЩЕЕ ЗОЛОТО */
+.profile-rank {
+    background: linear-gradient(135deg,
+        rgba(255, 215, 0, 0.25) 0%,      /* Золотой */
+        rgba(218, 165, 32, 0.22) 40%,    /* Золотой металл */
+        rgba(184, 134, 11, 0.18) 100%    /* Тёмное золото */
+    );
+    border: 2px solid rgba(255, 215, 0, 0.4);
+    border-radius: 20px;
+    padding: 18px 20px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 20px rgba(255, 215, 0, 0.15),         /* Очень мягкая тень */
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);     /* Внутренний блик */
+}
+
+/* Текстура золота — как шлифованный металл */
+.profile-rank::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, 
+            transparent 33%, 
+            rgba(255, 255, 255, 0.05) 50%, 
+            transparent 67%
+        ),
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent 50%);
+    background-size: 200% 200%, 300% 300%;
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Текст — градиент золота */
+.rank-name {
+    font-weight: 700;
+    font-size: 1.15rem;
+    background: linear-gradient(90deg,
+        #FFD700 0%,        /* Яркое золото */
+        #FFC400 50%,       /* Мягкое золото */
+        #B8860B 100%       /* Тёмное золото */
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+    position: relative;
+    z-index: 2;
+}
+
+/* Прогресс — серебристый, чтобы не конфликтовал */
+.rank-progress {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    position: relative;
+    z-index: 2;
+}
+
+/* Подсказка "ⓘ" — золотая */
+.rank-click-hint {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #FFD700; /* Яркое золото */
+    z-index: 3;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+/* Эффект при наведении — лёгкое усиление */
+.profile-rank:hover {
+    border-color: rgba(255, 215, 0, 0.6);
+    box-shadow: 
+        0 6px 25px rgba(255, 215, 0, 0.2),
+        inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+.profile-rank:hover .rank-click-hint {
+    background: rgba(255, 215, 0, 0.3);
+    color: #fff;
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Иконка — лёгкое золотое сияние */
+.profile-rank img {
+    width: 48px;
+    height: 48px;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3));
+    position: relative;
+    z-index: 2;
+    transition: filter 0.3s ease;
+}
+
+.profile-rank:hover img {
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}

@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Вазифалар</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&display=swap');
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+        font-family: 'Exo 2', sans-serif;
+        background: var(--tg-theme-bg-color, #0a0a0f);
+        color: var(--tg-theme-text-color, #ffffff);
+        overflow-x: hidden;
+        padding: 0;
+        margin: 0;
+        min-height: 100vh;
+        touch-action: pan-y;
+    }
+    
+    h1, h2, h3 {
+        font-family: 'Exo 2', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 16px;
+        padding-bottom: 80px;
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, 
+            var(--tg-theme-bg-color, #0a0a0f) 0%, 
+            #1a0a2e 50%, 
+            #0a0a0f 100%);
+        min-height: 100vh;
+        position: relative;
+    }
+    
+    .animated-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0.25;
+        z-index: 0;
+        will-change: transform;
+    }
+    
+    .animated-bg div {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(70px);
+        animation: float 10s ease-in-out infinite;
+    }
+    
+    .animated-bg div:nth-child(1) {
+        width: 220px;
+        height: 220px;
+        background: var(--tg-theme-button-color, #8b5cf6);
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .animated-bg div:nth-child(2) {
+        width: 280px;
+        height: 280px;
+        background: #ec4899;
+        top: 50%;
+        right: 10%;
+        animation-delay: 3s;
+    }
+    
+    .animated-bg div:nth-child(3) {
+        width: 200px;
+        height: 200px;
+        background: #06b6d4;
+        bottom: 20%;
+        left: 50%;
+        animation-delay: 6s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+        33% { transform: translate(25px, -25px) scale(1.08); opacity: 0.3; }
+        66% { transform: translate(-20px, 20px) scale(0.92); opacity: 0.2; }
+    }
+    
+    .back-btn {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        color: #a78bfa;
+        border-radius: 14px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 16px;
+        z-index: 1000;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+    
+    .back-btn:active {
+        transform: scale(0.96);
+        background: rgba(139, 92, 246, 0.25);
+        border-color: rgba(139, 92, 246, 0.5);
+    }
+    
+    .tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 24px;
+        padding: 6px;
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        z-index: 10;
+    }
+    
+    .tab-slider {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        height: calc(100% - 12px);
+        background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #ec4899 100%);
+        border-radius: 14px;
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 1;
+        box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+    }
+    
+    .tab-btn {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 10px;
+        border: none;
+        border-radius: 14px;
+        background: transparent !important;
+        color: #a78bfa;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 13px;
+        white-space: nowrap;
+        text-align: center;
+        font-weight: 500;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .tab-btn.active {
+        color: #fff;
+        font-weight: 600;
+        text-shadow: 0 2px 8px rgba(139, 92, 246, 0.5);
+    }
+    
+    .tab-content {
+        display: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .tab-content.active {
+        display: block !important;
+    }
+    
+    .points-balance {
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        border-radius: 24px;
+        padding: 28px 24px;
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(139, 92, 246, 0.25);
+        z-index: 10;
+    }
+    
+    .balance-amount {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 24px rgba(139, 92, 246, 0.5);
+        line-height: 1;
+    }
+    
+    .balance-label {
+        font-size: 1rem;
+        opacity: 0.9;
+        color: #a78bfa;
+        font-weight: 500;
+    }
+    
+    .clicks-container {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .click-icon {
+        width: 200px;
+        height: 200px;
+        margin: 32px auto;
+        background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #ec4899 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        user-select: none;
+        position: relative;
+        box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5);
+    }
+    
+    .click-icon:hover:not(.disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 12px 40px rgba(139, 92, 246, 0.7);
+    }
+    
+    .click-icon:active:not(.disabled) {
+        transform: scale(0.98);
+    }
+    
+    .click-icon.disabled {
+        background: rgba(30, 30, 46, 0.8);
+        cursor: not-allowed;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        opacity: 0.5;
+    }
+    
+    .click-icon.holding {
+        animation: holdPulse 0.8s ease-in-out infinite;
+        transform: scale(1.05);
+    }
+    
+    @keyframes holdPulse {
+        0%, 100% { 
+          transform: scale(1.05);
+          box-shadow: 0 8px 32px rgba(139, 92, 246, 0.6);
+        }
+        50% { 
+          transform: scale(1.08);
+          box-shadow: 0 12px 48px rgba(139, 92, 246, 0.9);
+        }
+    }
+    
+    @keyframes clickPulse {
+        0% { transform: scale(1.08); }
+        50% { transform: scale(0.94); }
+        100% { transform: scale(1.02); }
+    }
+    
+    .hold-progress-ring {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        width: calc(100% + 20px);
+        height: calc(100% + 20px);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    
+    .hold-progress-ring circle {
+        fill: none;
+        stroke: #fbbf24;
+        stroke-width: 6;
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+        transition: stroke-dashoffset 0.1s linear;
+        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+    }
+    
+    .hold-timer-text {
+        position: absolute;
+        bottom: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fbbf24;
+        font-size: 1.2rem;
+        font-weight: 700;
+        text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .hold-timer-text.visible {
+        opacity: 1;
+    }
+    
+    .clicks-info {
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .clicks-progress {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 0;
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+    
+    .hold-instruction {
+        color: #a78bfa;
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+    
+    .timer-display {
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border: 2px solid #ef4444;
+        border-radius: 18px;
+        padding: 24px;
+        margin-top: 24px;
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .referral-link {
+        background: rgba(30, 30, 46, 0.7);
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+        word-break: break-all;
+        font-family: 'Courier New', monospace;
+        color: #a78bfa;
+        font-size: 0.9rem;
+        text-align: center;
+        line-height: 1.5;
+    }
+    
+    .copy-btn {
+        background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #ec4899 100%);
+        color: #fff;
+        border: none;
+        padding: 14px 24px;
+        border-radius: 14px;
+        cursor: pointer;
+        margin-top: 12px;
+        width: 100%;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .copy-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(139, 92, 246, 0.5);
+    }
+    
+    .copy-btn:active {
+        transform: scale(0.97);
+    }
+    
+    .referral-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin: 24px 0;
+    }
+    
+    .stat-card {
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stat-card:active {
+        transform: scale(0.97);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #fbbf24;
+        text-shadow: 0 2px 12px rgba(251, 191, 36, 0.5);
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    
+    .form-group, .task-item, .info-card {
+        background: rgba(30, 30, 46, 0.85);
+        backdrop-filter: blur(12px);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 10px;
+        color: #fbbf24;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #ec4899 100%);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(139, 92, 246, 0.5);
+    }
+    
+    .btn-primary:active {
+        transform: scale(0.97);
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.4);
+        color: #fff;
+        font-size: 16px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Exo 2', sans-serif;
+    }
+    
+    .form-input:focus {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.12);
+        box-shadow: 0 0 24px rgba(139, 92, 246, 0.3);
+        outline: none;
+    }
+    
+    .registration-form {
+        background: rgba(30, 30, 46, 0.9);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        padding: 32px 24px;
+        text-align: center;
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(139, 92, 246, 0.3);
+    }
+    
+    .daily-reward-task {
+        position: relative;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(236, 72, 153, 0.18));
+        border: 2px solid rgba(139, 92, 246, 0.5);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(139, 92, 246, 0.3);
+    }
+    
+    .daily-glow {
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(60deg, #8b5cf6, #ec4899, #06b6d4, #8b5cf6);
+        border-radius: 20px;
+        z-index: -1;
+        animation: dailyGlow 5s ease-in-out infinite;
+        opacity: 0.35;
+        background-size: 300% 300%;
+    }
+    
+    @keyframes dailyGlow {
+        0%, 100% { opacity: 0.3; background-position: 0% 50%; }
+        50% { opacity: 0.5; background-position: 100% 50%; }
+    }
+    
+    .daily-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .daily-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .daily-icon {
+        font-size: 1.6rem;
+        animation: dailyPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes dailyPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.12); }
+    }
+    
+    .daily-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        flex: 1;
+        text-align: left;
+    }
+    
+    .daily-amount {
+        background: linear-gradient(45deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+    
+    .daily-description {
+        color: #c4b5fd;
+        margin-bottom: 14px;
+        font-size: 0.88rem;
+        line-height: 1.4;
+    }
+    
+    .daily-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 0.8rem;
+        color: #c4b5fd;
+    }
+    
+    .daily-claim-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(45deg, #fbbf24 0%, #f59e0b 100%);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    }
+    
+    .daily-claim-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(251, 191, 36, 0.6);
+    }
+    
+    .daily-claim-btn:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+    
+    .daily-claim-btn:disabled {
+        background: rgba(30, 30, 46, 0.8);
+        color: #a78bfa;
+        cursor: not-allowed;
+        opacity: 0.7;
+        box-shadow: none;
+    }
+    
+    .daily-timer {
+        text-align: center;
+        margin-top: 12px;
+        color: #c4b5fd;
+        font-size: 0.85rem;
+    }
+    
+    .daily-reward-task.claimed {
+        opacity: 0.7;
+        border-color: rgba(139, 92, 246, 0.2);
+    }
+    
+    .daily-reward-task.claimed .daily-glow {
+        display: none;
+    }
+    
+    #regularTasks {
+        margin-top: 32px;
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            padding: 14px;
+            padding-bottom: 80px;
+        }
+        
+        .form-input {
+            font-size: 16px;
+            padding: 12px 14px;
+        }
+        
+        .back-btn {
+            top: 12px;
+            left: 12px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .balance-amount {
+            font-size: 2.4rem;
+        }
+        
+        .click-icon {
+            width: 160px;
+            height: 160px;
+            font-size: 4.5rem;
+        }
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 1; transform: translateX(-50%) translateY(0); }
+        to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient">
+    <div class="animated-bg">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    
+    <button class="back-btn" onclick="goBack()">← Орқага</button>
+  
+  <div class="container">
+    <div id="registrationForm" class="registration-form">
+      <h2>💎 Вазифалар тизими</h2>
+      <p>Рўйхатдан ўтинг ва 1000 сўм совға олинг!</p>
+      
+      <div class="form-group">
+        <label class="form-label">Исмингиз *</label>
+        <input type="text" class="form-input" id="regName" placeholder="Исмигизни киритинг" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Телефон рақам *</label>
+        <input type="tel" class="form-input" id="regPhone" placeholder="+998 XX XXX XX XX" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Email почта</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="example@mail.com">
+        <small style="color: var(--accent-gold); font-size: 0.85rem; display: block; margin-top: 8px;">
+          💡 Электрон почтангизни киритинг ва тасдиқлагандан сўнг +500 сўм олинг
+        </small>
+      </div>
+      
+      <button class="btn-primary" onclick="registerUser()">🎁 Рўйхатдан ўтиш</button>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+      <div class="points-balance">
+        <div class="balance-amount" id="balanceAmount">0</div>
+        <div class="balance-label">сўм мавжуд</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-slider"></div>
+        <button class="tab-btn active" onclick="switchTab('tasks', this)"> Вазифалар</button>
+        <button class="tab-btn" onclick="switchTab('referral', this)">Реферал</button>
+        <button class="tab-btn" onclick="switchTab('clicks', this)">Клик</button>
+      </div>
+      
+      <div id="tasks" class="tab-content active">
+        <div id="tasksList">
+          <div id="dailyReward" class="daily-reward-task">
+            <div class="daily-glow"></div>
+            <div class="daily-content">
+              <div class="daily-header">
+                <div class="daily-icon">🎁</div>
+                <div class="daily-title">Кунлик соврин</div>
+                <div class="daily-amount" id="dailyAmount">+50 сўм</div>
+              </div>
+              <div class="daily-description">Ҳар куни совринларга эга бўлинг! Ҳар куни сумма ортиб боради!</div>
+              <div class="daily-stats">
+                <span>Ушбу ойда: <span id="monthlyTotal">0</span>/3000 сўм</span>
+                <span>Кун: <span id="dayCount">1</span></span>
+              </div>
+              <button id="claimBtn" class="daily-claim-btn" onclick="claimDailyReward()">
+                Совринни олиш
+              </button>
+              <div id="dailyTimer" class="daily-timer" style="display: none;">
+                Кейинги соврин: <span id="timerText">24:00:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="referral" class="tab-content">
+        <div class="info-card">
+          <h3 style="color: #a78bfa; margin-bottom: 18px; text-align: center;">🔗 Сизнинг реферал ҳаволангиз</h3>
+          <div class="referral-link" id="referralLink">
+            Юкланмоқда...
+          </div>
+          <button class="copy-btn" onclick="copyReferralLink()">
+            <span>📋</span>
+            <span>Нусхалаш</span>
+          </button>
+      
+          <div class="referral-stats">
+            <div class="stat-card">
+              <div class="stat-number" id="referralCount">0</div>
+              <div>Таклиф қилинган дўстлар</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="referralEarnings">0</div>
+              <div>Топилган сўм</div>
+            </div>
+          </div>
+        </div>
+      
+        <div class="info-card">
+          <h4 style="color: #a78bfa; margin-bottom: 12px; text-align: center;">👥 Таклиф этилган дўстлар</h4>
+          <div id="referralList">
+            <p style="color: #a0a0a0; text-align: center;">Ҳозирча ҳеч ким таклиф этилмаган</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="clicks" class="tab-content">
+        <div class="clicks-container">
+          <div class="clicks-info">
+            <div class="clicks-progress">
+              <span id="holdStatusText">Тугмани 6 сония босиб туринг</span>
+              <div class="hold-instruction">Мукофот: 500 сўм • ҳар 24 соатда 1 марта</div>
+            </div>
+          </div>
+          
+          <div class="click-icon" id="clickIcon">
+            <svg class="hold-progress-ring" id="progressRing">
+              <circle cx="50%" cy="50%" r="105" stroke-dasharray="659.73" stroke-dashoffset="659.73"></circle>
+            </svg>
+            <span class="click-icon-text">🎮</span>
+            <div class="hold-timer-text" id="holdTimer">0.0с</div>
+          </div>
+          
+          <div id="clicksTimer" class="timer-display" style="display: none;">
+            <h4>⏰ Кейинги уриниш 24 соатдан сўнг</h4>
+            <p>Сиз бугун совринни олгандингиз!</p>
+            <div id="timerDisplay" style="font-size: 1.5rem; font-weight: bold; margin-top: 10px;">
+              00:00:00
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+    let user = null;
+    let tasks = [];
+    let clicksData = { today: 0, earned: 0, isBlocked: false };
+    let clicksLoaded = false;
+    
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+    
+    document.addEventListener('click', function(e) {
+      if (!e.target.matches('input') && !e.target.matches('textarea')) {
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.matches('input') || activeElement.matches('textarea'))) {
+          activeElement.blur();
+        }
+      }
+    });
+    
+    document.addEventListener('focus', function(e) {
+      if (e.target.matches('input') || e.target.matches('textarea')) {
+        setTimeout(() => {
+          e.target.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest' 
+          });
+        }, 300);
+      }
+    }, true);
+    
+    if (tgUser) {
+      checkUserRegistration();
+    }
+    
+    async function checkUserRegistration() {
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (attempts < maxAttempts) {
+        try {
+          const response = await fetch(`../api.php?action=user&userId=${tgUser.id}`);
+          const user = await response.json();
+          
+          if (user && (user.points_registered === true || user.points_registered === 1 || user.points_registered === "1")) {
+            showMainContent();
+            return;
+          } else if (attempts === maxAttempts - 1) {
+            document.getElementById('registrationForm').style.display = 'block';
+            return;
+          }
+        } catch (error) {
+          console.error(`Попытка ${attempts + 1} не удалась:`, error);
+        }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+    
+    async function registerUser() {
+        const name = document.getElementById('regName').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        
+        document.activeElement?.blur();
+        
+        if (!name || !phone) {
+            showGameNotification('Керакли майдонларни тўлдиринг', 'error');
+            return;
+        }
+        
+        function isValidEmail(email) {
+          const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          return regex.test(email) && email.length <= 254;
+        }
+        
+        if (email && !isValidEmail(email)) {
+            showGameNotification('Электрон почта формати нотўғри', 'error');
+            return;
+        }
+        
+        const btn = document.querySelector('.btn-primary');
+        btn.disabled = true;
+        btn.textContent = 'Рўйхатдан ўтизмокдамиз...';
+        
+        try {
+            const response = await fetch('../api.php?action=user_register_points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: tgUser.id, name, phone, email: email || null })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                if (result.verificationCode) {
+                    showVerificationCodeModal(email, result.verificationCode);
+                } else {
+                    showGameNotification('Табриклаймиз! Сиз 1000 сўм олдингиз!', 'success');
+                    await checkUserRegistration();
+                }
+            } else {
+                showGameNotification(result.message || 'Ошибка регистрации', 'error');
+            }
+        } catch (error) {
+            showGameNotification('Хатолик юз берди', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🎁 Рўйхатдан ўтиш';
+        }
+    }
+    
+    function showVerificationCodeModal(email, code) {
+        const modal = document.createElement('div');
+        modal.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <div style="background: linear-gradient(145deg, rgba(0, 240, 255, 0.15), rgba(182, 36, 255, 0.12)); border: 2px solid rgba(0, 240, 255, 0.5); border-radius: 24px; padding: 32px; max-width: 400px; width: 90%; box-shadow: 0 0 50px rgba(0, 240, 255, 0.4); position: relative;">
+                    <h3 style="color: #00f0ff; margin-bottom: 16px; text-shadow: 0 0 20px rgba(0, 240, 255, 0.8); font-size: 1.4rem; text-align: center;">✉️ Тасдиқлаш коди</h3>
+                    <p style="color: #a0a0a0; margin-bottom: 24px; text-align: center; line-height: 1.5;">Электрон почтангизни тасдиқлаш коди<br><span style="color: #00f0ff;">${email}</span></p>
+                    <div style="background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(0, 240, 255, 0.4); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; letter-spacing: 8px; color: #00f0ff; text-shadow: 0 0 30px rgba(0, 240, 255, 1); font-family: 'Courier New', monospace;">${code}</div>
+                    </div>
+                    <p style="color: #fbbf24; text-align: center; margin-bottom: 20px; font-size: 0.9rem;">⏱️ Код 15 дақиқа давомида амал қилади</p>
+                    <button onclick="this.closest('div').parentElement.remove(); showGameNotification('Табриклаймиз! Сиз 1000 сўм олдингиз!', 'success'); checkUserRegistration();" style="width: 100%; padding: 14px; background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(182, 36, 255, 0.3)); color: white; border: 2px solid rgba(0, 240, 255, 0.6); border-radius: 12px; font-size: 16px; cursor: pointer; font-weight: 600; text-shadow: 0 0 10px rgba(0, 240, 255, 0.8); transition: all 0.3s;">Давом этиш</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    function showGameNotification(message, type = 'info') {
+        const colors = {
+            success: { bg: 'rgba(48, 209, 88, 0.2)', border: '#30d158', shadow: 'rgba(48, 209, 88, 0.6)' },
+            error: { bg: 'rgba(255, 0, 110, 0.2)', border: '#ff006e', shadow: 'rgba(255, 0, 110, 0.6)' },
+            info: { bg: 'rgba(0, 240, 255, 0.2)', border: '#00f0ff', shadow: 'rgba(0, 240, 255, 0.6)' }
+        };
+        
+        const c = colors[type] || colors.info;
+        
+        const notification = document.createElement('div');
+        notification.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: ${c.bg}; border: 2px solid ${c.border}; border-radius: 16px; padding: 16px 24px; z-index: 10001; backdrop-filter: blur(12px); box-shadow: 0 0 30px ${c.shadow}; color: white; font-weight: 600; text-shadow: 0 0 10px ${c.shadow}; animation: slideDown 0.3s ease-out; max-width: 90%; text-align: center;`;
+        
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideUp 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    async function showMainContent() {
+      document.getElementById('registrationForm').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      
+      try {
+        await loadBalance();
+        await loadTasks();
+        await loadReferralData();
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+      }
+      await loadDailyRewardStatus();
+    }
+            
+    async function loadBalance() {
+      try {
+        const response = await fetch(`../api.php?action=points&userId=${tgUser.id}`);
+        if (!response.ok) throw new Error('Ошибка загрузки баланса');
+        
+        const data = await response.json();
+        const points = parseInt(data.points) || 0;
+        
+        document.getElementById('balanceAmount').textContent = points.toLocaleString();
+        lastBalance = points;
+        
+      } catch (error) {
+        console.error('Ошибка загрузки баланса:', error);
+        document.getElementById('balanceAmount').textContent = lastBalance.toLocaleString();
+      }
+    }
+    
+    async function loadTasks() {
+      let regularTasksContainer = document.getElementById('regularTasks');
+      
+      if (!regularTasksContainer) {
+        regularTasksContainer = document.createElement('div');
+        regularTasksContainer.id = 'regularTasks';
+        document.getElementById('tasksList').appendChild(regularTasksContainer);
+      }
+      
+      regularTasksContainer.innerHTML = '<div class="task-item"><p style="text-align: center; color: #a0a0a0;">⏳ Вазифалар юкланмокда...</p></div>';
+      
+      try {
+        const tasksResponse = await fetch('../api.php?action=tasks');
+        if (!tasksResponse.ok) throw new Error('Вазифаларни юклашда хатолик');
+        const tasksData = await tasksResponse.json();
+        
+        const completedResponse = await fetch(`../api.php?action=user_completed_tasks&userId=${tgUser.id}`);
+        if (!completedResponse.ok) throw new Error('Ошибка загрузки истории');
+        const completedData = await completedResponse.json();
+        
+        tasks = Array.isArray(tasksData) ? tasksData : [];
+        const completedTasks = Array.isArray(completedData) ? completedData : [];
+        const completedIds = completedTasks.map(t => parseInt(t.task_id));
+        
+        if (tasks.length === 0) {
+          regularTasksContainer.innerHTML = '<div class="task-item"><p style="text-align: center; color: #a0a0a0;">📝 Мавжуд вазифалар йўқ</p></div>';
+          return;
+        }
+        
+        regularTasksContainer.innerHTML = tasks.map(task => {
+          const isCompleted = completedIds.includes(parseInt(task.id));
+          
+          return `
+            <div class="task-item">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div style="color: #ffffff; font-weight: 600; font-size: 1.05rem; line-height: 1.3; flex: 1; margin-right: 12px;">${task.title || 'Номи йўқ'}</div>
+                <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffb347 100%); color: white; padding: 6px 14px; border-radius: 25px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);">+${parseInt(task.points || 0).toLocaleString()} сўм</div>
+              </div>
+              <div style="color: #b8b8b8; margin-bottom: 16px; line-height: 1.5; font-size: 0.9rem;">${task.description || 'Тавсиф йўқ'}</div>
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                ${task.link ? `<a href="${task.link}" target="_blank" style="color: #00d4ff; text-decoration: none; font-size: 0.85rem; padding: 6px 12px; background: rgba(0, 212, 255, 0.1); border-radius: 15px; border: 1px solid rgba(0, 212, 255, 0.3); transition: all 0.2s ease;" onclick="registerTaskClick(${task.id})">🔗 Хаволани очиш</a>` : ''}
+                ${isCompleted ? 
+                  '<span style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);">Бажарилди</span>' :
+                  `<button style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 0.85rem; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); transition: all 0.2s ease;" onclick="completeTask(${task.id})">Вазифани бажариш</button>`
+                }
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Вазифани юклашда хатолик:', error);
+        regularTasksContainer.innerHTML = `
+          <div class="task-item">
+            <p style="text-align: center; color: #e74c3c; margin-bottom: 15px;">❌ Вазифани юклашда хатолик</p>
+            <button onclick="loadTasks()" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer;">
+              🔄 Қайта уриниш
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    async function registerTaskClick(taskId) {
+      try {
+        await fetch('../api.php?action=task_click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: tgUser.id, taskId: parseInt(taskId) })
+        });
+      } catch (error) {
+        console.error('Ошибка регистрации клика:', error);
+      }
+    }
+    
+    async function completeTask(taskId) {
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Бажарилмокда...';
+      
+      try {
+        const response = await fetch('../api.php?action=task_complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: tgUser.id, taskId: taskId })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          window.Telegram.WebApp.showAlert(`Вазифа бажарилди! Сиз ${result.points} сум олдингиз!`);
+          
+          try {
+            await loadBalance();
+          } catch (balanceError) {
+            console.error('Ошибка обновления баланса:', balanceError);
+          }
+          
+          try {
+            await loadTasks();
+          } catch (tasksError) {
+            console.error('Ошибка обновления заданий:', tasksError);
+            btn.textContent = 'Бажарилди';
+            btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            btn.style.cursor = 'default';
+          }
+          
+        } else {
+          window.Telegram.WebApp.showAlert(result.message || 'Вазифани бажаришда хатолик');
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      } catch (error) {
+        console.error('Вазифани бажаришда хатолик:', error);
+        window.Telegram.WebApp.showAlert('Вазифани бажаришда хатолик');
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+    
+    async function loadReferralData() {
+      try {
+        const response = await fetch(`../api.php?action=referral_data&userId=${tgUser.id}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.warn('Реферальные данные: неверный content-type, используем fallback');
+          throw new Error('Invalid content type');
+        }
+        
+        const data = await response.json();
+        
+        const linkElement = document.getElementById('referralLink');
+        if (linkElement) {
+          linkElement.textContent = `https://t.me/asuscs_bot?start=ref_${tgUser.id}`;
+        }
+        
+        const countElement = document.getElementById('referralCount');
+        const earningsElement = document.getElementById('referralEarnings');
+        
+        if (countElement) countElement.textContent = data.count || 0;
+        if (earningsElement) earningsElement.textContent = (data.earnings || 0).toLocaleString();
+        
+        const listElement = document.getElementById('referralList');
+        if (listElement) {
+          if (data.referrals && data.referrals.length > 0) {
+            listElement.innerHTML = data.referrals.map(ref => 
+              `<div style="background: rgba(255,255,255,0.05); padding: 10px; margin: 5px 0; border-radius: 8px;">
+                <span>${ref.name || 'Пользователь'}</span>
+                <span style="float: right; color: #28a745;">+${ref.reward} сум</span>
+              </div>`
+            ).join('');
+          } else {
+            listElement.innerHTML = '<p style="color: #a0a0a0; text-align: center;">Ҳали ҳеч ким таклиф қилинмаган</p>';
+          }
+        }
+        
+      } catch (error) {
+        console.error('Ошибка загрузки реферальных данных:', error);
+        
+        const linkElement = document.getElementById('referralLink');
+        if (linkElement) {
+          linkElement.textContent = `https://t.me/asuscs_bot?start=ref_${tgUser.id}`;
+        }
+        
+        const countElement = document.getElementById('referralCount');
+        const earningsElement = document.getElementById('referralEarnings');
+        
+        if (countElement) countElement.textContent = '0';
+        if (earningsElement) earningsElement.textContent = '0';
+        
+        const listElement = document.getElementById('referralList');
+        if (listElement) {
+          listElement.innerHTML = '<p style="color: #a0a0a0; text-align: center;">Пока никого не пригласили</p>';
+        }
+      }
+    }
+    
+    function copyReferralLink() {
+      const link = document.getElementById('referralLink').textContent;
+      navigator.clipboard.writeText(link).then(() => {
+        window.Telegram.WebApp.showAlert('Ҳавола нусхаланди');
+      });
+    }
+
+    // Hold button game logic
+    let holdStartTime = null;
+    let holdTimer = null;
+    let holdAnimationFrame = null;
+    const HOLD_DURATION = 6500;
+    const TARGET_MIN = 6000;
+    const TARGET_MAX = 7000;
+    
+    async function loadClicksData() {
+        if (clicksLoaded) return;
+        
+        try {
+            const response = await fetch(`../api.php?action=hold_game_status&userId=${tgUser.id}`);
+            const data = await response.json();
+            
+            clicksData = {
+                canPlay: data.canPlay !== false,
+                lastPlayTime: data.lastPlayTime || null,
+                isBlocked: data.canPlay === false
+            };
+            
+            clicksLoaded = true;
+            updateHoldGameDisplay();
+            
+            if (clicksData.isBlocked && data.timeLeft > 0) {
+                startTimer(data.timeLeft); // Было: startGameTimer
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            clicksData = { canPlay: true, isBlocked: false };
+            updateHoldGameDisplay();
+        }
+    }
+    
+    function updateHoldGameDisplay() {
+        const icon = document.getElementById('clickIcon');
+        const timer = document.getElementById('clicksTimer');
+        const statusText = document.getElementById('holdStatusText');
+        
+        if (clicksData.isBlocked) {
+            icon.classList.add('disabled');
+            timer.style.display = 'block';
+            if (statusText) statusText.textContent = 'Кейинги уринишни кутмоқдамиз...';
+        } else {
+            icon.classList.remove('disabled');
+            timer.style.display = 'none';
+            if (statusText) statusText.textContent = 'Тугмани 6 сония босиб туринг';
+        }
+    }
+    
+    function initHoldButton() {
+        const icon = document.getElementById('clickIcon');
+        if (!icon) return;
+        
+        icon.addEventListener('mousedown', startHold);
+        icon.addEventListener('mouseup', endHold);
+        icon.addEventListener('mouseleave', cancelHold);
+        icon.addEventListener('touchstart', startHold, { passive: false });
+        icon.addEventListener('touchend', endHold);
+        icon.addEventListener('touchcancel', cancelHold);
+    }
+    
+    function startHold(e) {
+        e.preventDefault();
+        
+        if (clicksData.isBlocked || !clicksData.canPlay) {
+            window.Telegram.WebApp.showAlert('Кейинги уриниш 24 соатдан кейин!');
+            return;
+        }
+        
+        const icon = document.getElementById('clickIcon');
+        const timerText = document.getElementById('holdTimer');
+        const progressCircle = document.querySelector('.hold-progress-ring circle');
+        
+        holdStartTime = Date.now();
+        icon.classList.add('holding');
+        timerText.classList.add('visible');
+        
+        // Подсветка кнопки
+        icon.style.boxShadow = '0 0 40px rgba(139, 92, 246, 1), 0 0 80px rgba(236, 72, 153, 0.8)';
+        icon.style.transform = 'scale(1.1)';
+        
+        // Вибрация каждые 100ms
+        const vibrateInterval = setInterval(() => {
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+        }, 100);
+        
+        const circumference = 659.73;
+        progressCircle.style.strokeDashoffset = circumference;
+        
+        function updateProgress() {
+            const elapsed = Date.now() - holdStartTime;
+            const progress = Math.min(elapsed / HOLD_DURATION, 1);
+            
+            const seconds = (elapsed / 1000).toFixed(1);
+            timerText.textContent = `${seconds}с`;
+            
+            const offset = circumference - (progress * circumference);
+            progressCircle.style.strokeDashoffset = offset;
+            
+            // Усиление свечения по мере прогресса
+            const glowIntensity = 40 + (progress * 60);
+            icon.style.boxShadow = `0 0 ${glowIntensity}px rgba(139, 92, 246, 1), 0 0 ${glowIntensity * 2}px rgba(236, 72, 153, 0.8)`;
+            
+            if (elapsed >= TARGET_MIN && elapsed <= TARGET_MAX) {
+                clearInterval(vibrateInterval);
+                if (window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+                completeHold(elapsed);
+                return;
+            }
+            
+            if (elapsed > TARGET_MAX) {
+                clearInterval(vibrateInterval);
+                failHold('Сиз тугмани жуда узоқ босиб турдингиз! Яна бир бор уриниб кўринг.');
+                return;
+            }
+            
+            holdAnimationFrame = requestAnimationFrame(updateProgress);
+        }
+        
+        holdAnimationFrame = requestAnimationFrame(updateProgress);
+        holdTimer = vibrateInterval; // Сохраняем для остановки
+    }
+    
+    function endHold(e) {
+        e.preventDefault();
+        if (!holdStartTime) return;
+        
+        const elapsed = Date.now() - holdStartTime;
+        if (elapsed < TARGET_MIN) {
+            failHold('Тугмани узоқроқ босиб туринг! 6 сония талаб этилади.');
+        }
+        resetHold();
+    }
+    
+    function cancelHold(e) {
+        if (!holdStartTime) return;
+        resetHold();
+    }
+    
+    async function completeHold(elapsed) {
+        resetHold();
+        
+        const icon = document.getElementById('clickIcon');
+        icon.style.animation = 'clickPulse 0.3s ease-out';
+        setTimeout(() => icon.style.animation = '', 300);
+        
+        try {
+            const response = await fetch('../api.php?action=complete_hold_game', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: tgUser.id, holdTime: elapsed })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                window.Telegram.WebApp.showAlert(`🎉 Табриклаймиз! Сиз ${result.reward || 500} сўм олдингиз!\n\nКейинги уриниш 24 соатдан сўнг.`);
+                
+                clicksData.isBlocked = true;
+                clicksData.canPlay = false;
+                updateHoldGameDisplay();
+                await loadBalance();
+                
+                if (result.timeLeft) {
+                    startTimer(result.timeLeft); // Было: startGameTimer
+                }
+            } else {
+                window.Telegram.WebApp.showAlert(result.message || 'Совринни олишда хатолик');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            window.Telegram.WebApp.showAlert('Ошибка подключения');
+        }
+    }
+    
+    function failHold(message) {
+        resetHold();
+        
+        if (window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+        }
+        
+        const statusText = document.getElementById('holdStatusText');
+        if (statusText) {
+            const originalText = statusText.textContent;
+            statusText.textContent = message;
+            statusText.style.color = '#ef4444';
+            setTimeout(() => {
+                statusText.textContent = originalText;
+                statusText.style.color = '';
+            }, 3000);
+        }
+    }
+    
+    function resetHold() {
+        const icon = document.getElementById('clickIcon');
+        const timerText = document.getElementById('holdTimer');
+        const progressCircle = document.querySelector('.hold-progress-ring circle');
+        
+        if (holdAnimationFrame) {
+            cancelAnimationFrame(holdAnimationFrame);
+            holdAnimationFrame = null;
+        }
+        if (holdTimer) {
+            clearInterval(holdTimer); // Останавливаем вибрацию
+            holdTimer = null;
+        }
+        
+        holdStartTime = null;
+        icon.classList.remove('holding');
+        timerText.classList.remove('visible');
+        timerText.textContent = '0.0с';
+        
+        // Сброс стилей
+        icon.style.boxShadow = '';
+        icon.style.transform = '';
+        
+        const circumference = 659.73;
+        progressCircle.style.strokeDashoffset = circumference;
+    }
+    
+    let clickTimerStart = null;
+
+    function startTimer(timeLeft) {
+      clickTimerStart = Date.now();
+      
+      const timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - clickTimerStart) / 1000);
+        const remaining = Math.max(0, timeLeft - elapsed);
+        
+        if (remaining <= 0) {
+          clearInterval(timer);
+          clicksLoaded = false;
+          clicksData.isBlocked = false;
+          clicksData.canPlay = true;
+          updateHoldGameDisplay();
+          return;
+        }
+        
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        
+        const timerDisplay = document.getElementById('timerDisplay');
+        if (timerDisplay) {
+          timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+    
+    function goBack() {
+      window.history.back();
+    }
+    
+    function switchTab(tabName, buttonElement) {
+      if (buttonElement.classList.contains('active')) return;
+      
+      const slider = document.querySelector('.tab-slider');
+      const containerPadding = 6;
+      
+      const tabWidth = buttonElement.offsetWidth;
+      const tabOffset = buttonElement.offsetLeft - containerPadding;
+      
+      slider.style.width = `${tabWidth}px`;
+      slider.style.left = `${tabOffset + containerPadding}px`;
+      
+      const currentTab = document.querySelector('.tab-content.active');
+      if (currentTab) {
+        currentTab.style.opacity = '0';
+        currentTab.style.transform = 'translateY(10px)';
+        
+        setTimeout(() => {
+          currentTab.classList.remove('active');
+          currentTab.style.opacity = '';
+          currentTab.style.transform = '';
+        }, 200);
+      }
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      setTimeout(() => {
+        buttonElement.classList.add('active');
+        
+        const newTab = document.getElementById(tabName);
+        newTab.style.opacity = '0';
+        newTab.style.transform = 'translateY(-10px)';
+        newTab.classList.add('active');
+        
+        setTimeout(() => {
+          newTab.style.transition = 'all 0.3s ease';
+          newTab.style.opacity = '1';
+          newTab.style.transform = 'translateY(0)';
+          
+          setTimeout(() => {
+            newTab.style.transition = '';
+            newTab.style.opacity = '';
+            newTab.style.transform = '';
+          }, 300);
+        }, 50);
+        
+      }, 100);
+      
+      if (tabName === 'clicks' && !clicksLoaded) {
+        setTimeout(() => {
+          loadClicksData();
+          initHoldButton();
+        }, 300);
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (activeTab) {
+        const slider = document.querySelector('.tab-slider');
+        const tabWidth = activeTab.offsetWidth;
+        const tabOffset = activeTab.offsetLeft;
+        
+        slider.style.width = `${tabWidth}px`;
+        slider.style.left = `${tabOffset}px`;
+      }
+    });
+    
+    let lastBalance = 0;
+    
+    let dailyRewardData = null;
+
+    async function loadDailyRewardStatus() {
+      try {
+        const response = await fetch(`../api.php?action=daily_reward_status&userId=${tgUser.id}`);
+        dailyRewardData = await response.json();
+        
+        updateDailyRewardDisplay();
+        
+      } catch (error) {
+        console.error('Ошибка загрузки ежедневного приза:', error);
+      }
+    }
+    
+    function updateDailyRewardDisplay() {
+      if (!dailyRewardData) return;
+      
+      document.getElementById('dailyAmount').textContent = `+${dailyRewardData.nextReward} сум`;
+      document.getElementById('monthlyTotal').textContent = dailyRewardData.monthlyTotal;
+      document.getElementById('dayCount').textContent = dailyRewardData.dayCount + 1;
+      
+      const claimBtn = document.getElementById('claimBtn');
+      const timer = document.getElementById('dailyTimer');
+      const task = document.getElementById('dailyReward');
+      
+      if (dailyRewardData.canClaim) {
+        claimBtn.disabled = false;
+        claimBtn.textContent = 'Совринни олиш';
+        timer.style.display = 'none';
+        task.classList.remove('claimed');
+      } else {
+        claimBtn.disabled = true;
+        claimBtn.textContent = 'Соврин олинди';
+        timer.style.display = 'block';
+        task.classList.add('claimed');
+        
+        if (dailyRewardData.timeLeft > 0) {
+          startDailyTimer();
+        }
+      }
+    }
+    
+    async function claimDailyReward() {
+      if (!dailyRewardData?.canClaim) return;
+      
+      const btn = document.getElementById('claimBtn');
+      btn.disabled = true;
+      btn.textContent = 'Олинмокда...';
+      
+      try {
+        const response = await fetch('../api.php?action=claim_daily_reward', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: tgUser.id })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          window.Telegram.WebApp.showAlert(`Табриклаймиз! Сиз ${result.reward} сум олдингиз!`);
+          
+          try {
+            await loadDailyRewardStatus();
+          } catch (error) {
+            console.error('Ошибка обновления статуса ежедневного приза:', error);
+            btn.disabled = true;
+            btn.textContent = 'Соврин олинди';
+            const timer = document.getElementById('dailyTimer');
+            const task = document.getElementById('dailyReward');
+            timer.style.display = 'block';
+            task.classList.add('claimed');
+          }
+          
+          try {
+            await loadBalance();
+          } catch (error) {
+            console.error('Ошибка обновления баланса:', error);
+          }
+          
+        } else {
+          window.Telegram.WebApp.showAlert(result.message || 'Совринни олишда хатолик');
+          btn.disabled = false;
+          btn.textContent = 'Совринни олиш';
+        }
+      } catch (error) {
+        console.error('Совринни олишда хатолик:', error);
+        window.Telegram.WebApp.showAlert('Ошибка подключения к серверу');
+        btn.disabled = false;
+        btn.textContent = 'Совринни олиш';
+      }
+    }
+    
+    let dailyTimerStart = null;
+
+    function startDailyTimer() {
+      let timeLeft = dailyRewardData?.timeLeft || 86400;
+      dailyTimerStart = Date.now();
+      
+      const timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - dailyTimerStart) / 1000);
+        const remaining = Math.max(0, timeLeft - elapsed);
+        
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          loadDailyRewardStatus();
+          return;
+        }
+        
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        
+        const timerElement = document.getElementById('timerText');
+        if (timerElement) {
+          timerElement.textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+  </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
+# Кеширование аудио
+<FilesMatch "\.(mp3|wav|ogg)$">
+    Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>
+
+# Блокировка доступа к чувствительным файлам
+<FilesMatch "^(\.env|config\.php|club\.db|.*\.log)$">
+    Require all denied
+</FilesMatch>
+
+<Files "*.db">
+    Require all denied
+</Files>
+
+<Files "security.log">
+    Require all denied
+</Files>
+
+# Защита от просмотра директорий
+Options -Indexes
+
+# Кеширование статики
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType text/css "access plus 1 week"
+ExpiresByType text/javascript "access plus 1 week"
+</IfModule>
+
+# Сжатие
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/json
+</IfModule>
+
+# Заголовки безопасности
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# NOTE:
+# If you want anti-hotlink protection in production, add your domain-specific
+# rules here after replacing the example hostnames from the deployment docs.
+
+# Ограничение размера POST запросов (защита от DoS)
+LimitRequestBody 10485760

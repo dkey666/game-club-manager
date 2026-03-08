@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https://telegram.org https://api.telegram.org;
+        script-src 'self' 'unsafe-inline' https://telegram.org;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' data: https:;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' https://api.telegram.org;
+        media-src 'self';
+    ">
+    <title>Profile - DKX Game Club</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles/rank-enhancements.css">
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Gaming Club Colors */
+            --neon-cyan: #00f0ff;
+            --neon-purple: #b624ff;
+            --neon-pink: #ff006e;
+            --neon-blue: #0066ff;
+            --electric-blue: #00d4ff;
+            --cyber-yellow: #ffea00;
+            
+            --primary-blue: #007aff;
+            --secondary-blue: #5856d6;
+            --success-green: #30d158;
+            --background-dark: #000000;
+            --surface-1: rgba(255, 255, 255, 0.1);
+            --surface-2: rgba(255, 255, 255, 0.15);
+            --surface-3: rgba(255, 255, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --blur-amount: 20px;
+            --border-radius: 20px;
+            --small-radius: 12px;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: #000000;
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-size: 16px;
+            line-height: 1.5;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Gaming Club Background Layers */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle 500px at 20% 30%, rgba(0, 240, 255, 0.15) 0%, transparent 70%),
+                radial-gradient(circle 400px at 80% 70%, rgba(182, 36, 255, 0.12) 0%, transparent 70%),
+                radial-gradient(circle 300px at 50% 50%, rgba(255, 0, 110, 0.1) 0%, transparent 60%);
+            z-index: -2;
+            animation: bgPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Cyber Grid Effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+
+        /* Particle Canvas */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 70px 24px 24px;
+            position: relative;
+        }
+        
+        /* Gaming Club Back Button */
+        .back-btn {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(182, 36, 255, 0.2));
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 2px solid var(--neon-cyan);
+            border-radius: var(--small-radius);
+            padding: 12px 16px;
+            position: fixed !important;
+            top: 20px;
+            left: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 1000; !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(182, 36, 255, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 
+                0 0 30px rgba(0, 240, 255, 0.5),
+                0 0 15px rgba(182, 36, 255, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: var(--electric-blue);
+        }
+
+        .back-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Gaming Profile Header */
+        .profile-header {
+            background: linear-gradient(145deg, 
+                rgba(0, 240, 255, 0.15) 0%, 
+                rgba(182, 36, 255, 0.12) 50%,
+                rgba(0, 102, 255, 0.1) 100%);
+            backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 26px;
+            padding: 28px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 30px rgba(0, 240, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 240, 255, 0.3) 50%,
+                transparent 100%);
+            animation: scanline 3s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .profile-avatar {
+            background: linear-gradient(135deg, 
+                var(--neon-cyan) 0%, 
+                var(--neon-purple) 50%,
+                var(--neon-pink) 100%);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+            box-shadow: 
+                0 0 30px rgba(0, 240, 255, 0.6),
+                0 0 15px rgba(182, 36, 255, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            animation: avatarGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 30px rgba(0, 240, 255, 0.6),
+                    0 0 15px rgba(182, 36, 255, 0.4),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 40px rgba(0, 240, 255, 0.8),
+                    0 0 25px rgba(182, 36, 255, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+        
+        .profile-id {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+        }
+
+        .profile-balance {
+            text-align: right;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .balance-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            margin-bottom: 2px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+            animation: balancePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes balancePulse {
+            0%, 100% { text-shadow: 0 0 15px rgba(0, 240, 255, 0.8); }
+            50% { text-shadow: 0 0 25px rgba(0, 240, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); }
+        }
+
+        .balance-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Gaming Tabs System */
+        .tabs-container {
+            margin-bottom: 20px;
+        }
+
+        .tabs-nav {
+            display: flex;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 18px;
+            padding: 8px;
+            margin-bottom: 24px;
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, 
+                rgba(0, 240, 255, 0.3) 0%, 
+                rgba(182, 36, 255, 0.3) 100%);
+            color: var(--text-primary);
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+        }
+
+        .tab-btn:not(.active):hover {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Gaming Cards */
+        .info-card {
+            background: linear-gradient(145deg, 
+                rgba(0, 240, 255, 0.08) 0%, 
+                rgba(182, 36, 255, 0.06) 100%);
+            backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 
+                0 0 25px rgba(0, 240, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 240, 255, 0.2) 50%,
+                transparent 100%);
+            transition: left 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .info-card:hover::before {
+            left: 100%;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, 
+                rgba(0, 240, 255, 0.2) 0%, 
+                rgba(182, 36, 255, 0.15) 100%);
+            padding: 18px 24px;
+            border-bottom: 2px solid rgba(0, 240, 255, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 240, 255, 0.8), 
+                transparent);
+            opacity: 0.6;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row:hover {
+            background: rgba(0, 240, 255, 0.08);
+            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+
+        /* Gaming Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, 
+                rgba(0, 240, 255, 0.1) 0%, 
+                rgba(182, 36, 255, 0.08) 100%);
+            backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 18px;
+            padding: 22px 16px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 240, 255, 0.3) 50%,
+                transparent 100%);
+            transition: left 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 
+                0 0 35px rgba(0, 240, 255, 0.4),
+                0 0 20px rgba(182, 36, 255, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2);
+            border-color: var(--neon-cyan);
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            margin-bottom: 6px;
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            line-height: 1.2;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Gaming History Items */
+        .history-item {
+            background: linear-gradient(145deg, 
+                rgba(0, 240, 255, 0.08) 0%, 
+                rgba(182, 36, 255, 0.06) 100%);
+            backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 0 15px rgba(0, 240, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .history-item:hover {
+            background: linear-gradient(145deg, 
+                rgba(0, 240, 255, 0.12) 0%, 
+                rgba(182, 36, 255, 0.1) 100%);
+            transform: translateX(6px);
+            box-shadow: 
+                0 0 25px rgba(0, 240, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-cyan);
+        }
+        
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .history-reason {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+        }
+        
+        .history-date {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .history-amount {
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+        
+        .history-amount.positive {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+        }
+        
+        .history-amount.negative {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px rgba(255, 0, 110, 0.6);
+        }
+        
+        .no-data {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 30px 20px;
+            background: linear-gradient(145deg, 
+                rgba(0, 240, 255, 0.05) 0%, 
+                rgba(182, 36, 255, 0.03) 100%);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .no-data h3 {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        /* Gaming Rank Block */
+        .profile-rank {
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.15) 0%, 
+                rgba(255, 165, 0, 0.1) 100%);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 20px;
+            padding: 18px 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 25px rgba(255, 215, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .profile-rank::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 215, 0, 0.3) 50%,
+                transparent 100%);
+            transition: left 1.2s ease;
+            z-index: 1;
+        }
+        
+        .profile-rank:hover::before {
+            left: 100%;
+        }
+        
+        .profile-rank:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 40px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 215, 0, 0.8);
+        }
+        
+        .profile-rank img {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.6));
+            position: relative;
+            z-index: 2;
+        }
+        
+        .rank-info {
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .rank-name {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #FFD700;
+            margin-bottom: 4px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+        
+        .rank-progress {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .rank-click-hint {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: rgba(255, 215, 0, 0.8);
+            z-index: 3;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .profile-rank:hover .rank-click-hint {
+            background: rgba(255, 215, 0, 0.4);
+            color: #FFD700;
+            transform: translateY(-50%) scale(1.2);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        /* Gaming Modal */
+        .rank-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(12px);
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                backdrop-filter: blur(0px);
+                background: rgba(0, 0, 0, 0);
+            }
+            to {
+                backdrop-filter: blur(12px);
+                background: rgba(0, 0, 0, 0.9);
+            }
+        }
+        
+        .rank-modal.active {
+            display: flex;
+        }
+        
+        .rank-modal-content {
+            background: linear-gradient(145deg, 
+                rgba(0, 0, 0, 0.95) 0%, 
+                rgba(0, 20, 40, 0.95) 100%);
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 420px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 
+                0 0 50px rgba(0, 240, 255, 0.3),
+                0 0 25px rgba(182, 36, 255, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px) saturate(150%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rank-modal-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(182, 36, 255, 0.12) 0%, transparent 35%),
+                radial-gradient(circle at 50% 10%, rgba(255, 0, 110, 0.1) 0%, transparent 40%);
+            animation: rotateSlow 20s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(40px);
+            opacity: 0.8;
+        }
+        
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .rank-modal-header h3 {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+        }
+        
+        .rank-modal-header h3::before {
+            content: "🏆";
+            font-size: 1.2rem;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+        }
+        
+        .rank-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 240, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            color: var(--neon-cyan);
+            font-size: 24px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+        
+        .rank-modal-close:hover {
+            background: rgba(255, 0, 110, 0.3);
+            color: var(--neon-pink);
+            transform: rotate(90deg) scale(1.15);
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 25px rgba(255, 0, 110, 0.5);
+        }
+        
+        .rank-modal-info {
+            background: linear-gradient(135deg, 
+                rgba(0, 240, 255, 0.1) 0%, 
+                rgba(182, 36, 255, 0.08) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .ranks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .rank-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+        
+        .rank-item.current-rank {
+            background: linear-gradient(135deg, 
+                rgba(0, 240, 255, 0.2) 0%, 
+                rgba(182, 36, 255, 0.15) 100%);
+            border: 2px solid rgba(0, 240, 255, 0.6);
+            box-shadow: 
+                0 0 25px rgba(0, 240, 255, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .rank-item.current-rank::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                var(--neon-cyan), 
+                var(--neon-purple), 
+                var(--neon-cyan));
+            border-radius: 16px;
+            z-index: -1;
+            animation: glowingBorder 2s ease-in-out infinite;
+            opacity: 0.6;
+        }
+        
+        @keyframes glowingBorder {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.4; }
+        }
+        
+        .rank-item:hover:not(.current-rank) {
+            background: rgba(0, 240, 255, 0.08);
+            transform: translateX(6px) scale(1.01);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            border-color: var(--neon-cyan);
+        }
+        
+        .rank-item img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.4));
+            flex-shrink: 0;
+        }
+        
+        .rank-item-info {
+            flex: 1;
+        }
+        
+        .rank-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            font-size: 0.95rem;
+        }
+        
+        .rank-item-range {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .rank-modal-body {
+            max-height: calc(80vh - 120px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 4px;
+        }
+        
+        .rank-modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .rank-modal-body::-webkit-scrollbar-track {
+            background: rgba(0, 240, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .rank-modal-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        
+        .rank-modal-body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--electric-blue), var(--neon-pink));
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header,
+        .tabs-container,
+        .info-card,
+        .stat-card,
+        .history-item {
+            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .profile-header { animation-delay: 0.1s; }
+        .tabs-container { animation-delay: 0.2s; }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 50px 16px 16px;
+            }
+
+            .profile-header {
+                padding: 20px 16px;
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .profile-info {
+                text-align: center;
+            }
+
+            .profile-balance {
+                text-align: center;
+            }
+
+            .tabs-nav {
+                padding: 4px;
+            }
+
+            .tab-btn {
+                padding: 10px 6px;
+                font-size: 0.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .info-row {
+                padding: 14px 16px;
+                flex-direction: column;
+                gap: 6px;
+                text-align: center;
+            }
+
+            .info-value {
+                max-width: 100%;
+                text-align: center;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+                padding: 14px;
+            }
+
+            .history-amount {
+                margin-left: 0;
+            }
+
+            .profile-rank {
+                padding: 14px 16px;
+                margin: 16px 0;
+            }
+            
+            .profile-rank img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .rank-name {
+                font-size: 1rem;
+            }
+            
+            .rank-progress {
+                font-size: 0.8rem;
+            }
+            
+            .rank-modal-content {
+                padding: 20px;
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="goBack()">← Назад</button>
+    
+    <div class="container">
+        <div id="profileContent">
+            <div class="no-data">
+                <h3>Профиль недоступен</h3> 
+                <p>Для создания профиля активируйте систему баллов на главной странице</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+        
+        const validateInput = {
+            name: (value) => {
+                if (value.length < 2 || value.length > 50) return false;
+                if (!/[a-zA-Zа-яА-ЯёЁўўқғҳҲ]/.test(value)) return false;
+                return true;
+            },
+            phone: (value) => {
+                const clean = value.replace(/[^\d+]/g, '');
+                return clean.startsWith('+') && clean.length >= 11 && clean.length <= 16;
+            },
+            email: (value) => {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            }
+        };
+        const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        
+        if (tgUser) {
+            console.log('TG User ID:', tgUser.id);
+            loadProfile();
+        } else {
+            console.error('No TG user!');
+        }
+        
+        async function loadProfile() {
+            console.log('=== LOAD PROFILE START ===');
+            try {
+                const response = await fetch(`api.php?action=user&userId=${tgUser.id}`);
+                const user = await response.json();
+                
+                console.log('User data:', user);
+                
+                if (!user) {
+                    console.error('User is null');
+                    return;
+                }
+                
+                await renderProfile(user);
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+        
+        async function renderProfile(user) {
+            console.log('=== RENDER PROFILE START ===');
+            const container = document.getElementById('profileContent');
+            
+            if (!container) {
+                console.error('Container not found!');
+                return;
+            }
+            
+            let earningsData = {
+                totalEarned: 0,
+                todayEarned: 0,
+                clicksEarned: 0,
+                tasksEarned: 0,
+                referralEarned: 0
+            };
+            
+            try {
+                const earningsResponse = await fetch(`api.php?action=profile_earnings&userId=${tgUser.id}`);
+                if (earningsResponse.ok) {
+                    earningsData = await earningsResponse.json();
+                }
+            } catch (error) {}
+            
+            container.innerHTML = `
+                <div class="profile-header">
+                    <div class="profile-avatar">🎮</div>
+                    <div class="profile-info">
+                        <div class="profile-name">${escapeHtml(user.name || user.first_name || 'Игрок')}</div>
+                        <div class="profile-id">ID: ${escapeHtml(user.telegram_id)}</div>
+                    </div>
+                    <div class="profile-balance">
+                        <div class="balance-amount">${(user.points || 0).toLocaleString()}</div>
+                        <div class="balance-label">сум</div>
+                    </div>
+                </div>
+                
+                <div class="profile-rank">
+                    <img id="rankIcon" src="images/icons/novice.png" alt="Ранг" />
+                    <div class="rank-info">
+                        <div class="rank-name" id="rankName">Новичок I</div>
+                        <div class="rank-progress" id="rankProgress">0 сум заработано</div>
+                    </div>
+                    <div class="rank-click-hint">ⓘ</div>
+                </div>
+                
+                <div id="rankModal" class="rank-modal">
+                    <div class="rank-modal-content">
+                        <button class="rank-modal-close" onclick="closeRankModal()">✕</button>
+                        <div class="rank-modal-header">
+                            <h3>Система рангов</h3>
+                        </div>
+                        <div class="rank-modal-body">
+                            <div class="rank-modal-info">
+                                Ранг рассчитывается по всем заработанным баллам за время
+                            </div>
+                            <div id="ranksList" class="ranks-list">
+                                Загрузка рангов...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="tabs-container">
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" onclick="switchTab('stats', this)">📊 Статистика</button>
+                        <button class="tab-btn" onclick="switchTab('profile', this)">👤 Профиль</button>
+                        <button class="tab-btn" onclick="switchTab('history', this)">📈 История</button>
+                    </div>
+            
+                    <div id="stats-tab" class="tab-content active">
+                        <div class="info-card">
+                            <div class="card-header">
+                                <div class="card-title">💰 Заработок</div>
+                            </div>
+                            <div class="stats-grid" style="margin-top: 16px;">
+                                <div class="stat-card">
+                                    <div class="stat-number">${earningsData.totalEarned.toLocaleString()}</div>
+                                    <div class="stat-label">Всего заработано</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">${earningsData.todayEarned.toLocaleString()}</div>
+                                    <div class="stat-label">За сегодня</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">${earningsData.clicksEarned.toLocaleString()}</div>
+                                    <div class="stat-label">Из кликов</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">${earningsData.tasksEarned.toLocaleString()}</div>
+                                    <div class="stat-label">Из заданий</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">${earningsData.referralEarned.toLocaleString()}</div>
+                                    <div class="stat-label">Из рефералов</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div id="profile-tab" class="tab-content">
+                        <div class="info-card">
+                            <div class="card-header">
+                                <div class="card-title">🔧 Персональные данные</div>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Имя</span>
+                                <span class="info-value">${escapeHtml(user.name || 'Не указано')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Телефон</span>
+                                <span class="info-value">${escapeHtml(user.phone || 'Не указан')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email</span>
+                                <span class="info-value">${escapeHtml(user.email || 'Не указан')} ${user.email_verified == 1 ? '✓' : ''}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Username</span>
+                                <span class="info-value">${user.username ? '@' + escapeHtml(user.username) : 'Не указан'}</span>
+                            </div>
+                        </div>
+            
+                        <div class="info-card">
+                            <div class="card-header">
+                                <div class="card-title">ℹ️ Информация</div>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Дата регистрации</span>
+                                <span class="info-value">${new Date(user.created_at).toLocaleDateString('ru-RU')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Статус</span>
+                                <span class="info-value">Активен</span>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div id="history-tab" class="tab-content">
+                        <div class="info-card">
+                            <div class="card-header">
+                                <div class="card-title">📋 История</div>
+                            </div>
+                            <div id="historyList" style="padding: 0 20px 20px; margin-top: 16px;">
+                                <div style="text-align: center; color: #a0a0a0; padding: 20px;">
+                                    Загрузка...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // КРИТИЧНО: Добавляем обработчик клика ПОСЛЕ создания HTML
+            setTimeout(() => {
+                const rankSection = document.getElementById('profileRankSection');
+                if (rankSection) {
+                    rankSection.addEventListener('click', function(e) {
+                        console.log('Клик по рангу обнаружен!', e.target);
+                        showRankModal();
+                    });
+                    console.log('Обработчик клика добавлен к секции ранга');
+                } else {
+                    console.error('Секция ранга не найдена!');
+                }
+            }, 100);
+            
+            // Загружаем данные
+            await loadUserRank();
+            await loadAllRanks();
+            await loadHistory();
+            await applyRankEnhancements(user);
+            await checkEmailStatus();
+        }
+
+        // Функция переключения табов
+        function switchTab(tabName, button) {
+            // Убираем активный класс со всех кнопок и табов
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Добавляем активный класс к нажатой кнопке и соответствующему табу
+            button.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+        
+        async function loadHistory() {
+            try {
+                const response = await fetch(`api.php?action=profile_history_grouped&userId=${tgUser.id}`);
+                const history = await response.json();
+                renderHistory(history);
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+                try {
+                    const fallbackResponse = await fetch(`api.php?action=admin_points_history&userId=${tgUser.id}`);
+                    const fallbackHistory = await fallbackResponse.json();
+                    renderHistory(fallbackHistory);
+                } catch (fallbackError) {
+                    console.error('Ошибка загрузки fallback истории:', fallbackError);
+                    const historyList = document.getElementById('historyList');
+                    if (historyList) {
+                        historyList.innerHTML = '<div class="no-data"><p>Ошибка загрузки истории</p></div>';
+                    }
+                }
+            }
+        }
+        
+        async function applyRankEnhancements(user) {
+            try {
+                // Получаем данные о ранге пользователя
+                const response = await fetch(`api.php?action=user_rank&userId=${tgUser.id}`);
+                const rankData = await response.json();
+                
+                if (rankData && rankData.rank) {
+                    // Устанавливаем атрибут data-rank для body
+                    document.body.setAttribute('data-rank', rankData.rank.level);
+                    
+                    // Опционально: можно добавить класс для дополнительной стилизации
+                    document.body.classList.add(`rank-level-${rankData.rank.level}`);
+                    
+                    // Логирование для отладки
+                    console.log(`Применен ранг: ${rankData.rank.name} (уровень ${rankData.rank.level})`);
+                }
+            } catch (error) {
+                console.error('Ошибка применения ранговых улучшений:', error);
+                // Устанавливаем базовый ранг в случае ошибки
+                document.body.setAttribute('data-rank', '1');
+            }
+        }
+        
+        function renderHistory(history) {
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="no-data"><p>История операций пуста</p></div>';
+                return;
+            }
+            
+            historyList.innerHTML = history.slice(0, 15).map(item => {
+                const date = new Date(item.created_at).toLocaleDateString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const isPositive = item.action === 'add';
+                
+                return `
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-reason">${escapeHtml(item.reason)}</div>
+                            <div class="history-date">${date}</div>
+                        </div>
+                        <div class="history-amount ${isPositive ? 'positive' : 'negative'}">
+                            ${isPositive ? '+' : '-'}${parseInt(item.amount).toLocaleString()} сум
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        let currentUserRank = null;
+        let allRanks = [];
+        let ranksCache = null;
+        let ranksCacheTime = 0;
+        const RANKS_CACHE_DURATION = 5 * 60 * 1000; // 5 минут
+        
+        // Загрузка ранга пользователя
+        async function loadUserRank() {
+            const debugInfo = document.getElementById('debugInfo');
+            try {
+                if (debugInfo) {
+                    debugInfo.style.display = 'block';
+                    debugInfo.textContent = 'Загружаем ранг...';
+                }
+                
+                const response = await fetch(`api.php?action=user_rank&userId=${tgUser.id}`);
+                const data = await response.json();
+                
+                currentUserRank = data;
+                
+                // Обновляем отображение ранга
+                const rankIcon = document.getElementById('rankIcon');
+                const rankName = document.getElementById('rankName');
+                const rankProgress = document.getElementById('rankProgress');
+                
+                if (rankIcon) rankIcon.src = `images/icons/${data.rank.icon}`;
+                if (rankName) rankName.textContent = data.rank.name;
+                if (rankProgress) rankProgress.textContent = `${data.totalEarned.toLocaleString()} сум заработано`;
+                if (data && data.rank && data.rank.level) {
+                    document.body.setAttribute('data-rank', data.rank.level);
+                    console.log(`✅ Ранг применён: ${data.rank.name} (уровень ${data.rank.level})`);
+                } else {
+                    console.error('❌ Ошибка: данные о ранге отсутствуют. Устанавливаю уровень 1.');
+                    document.body.setAttribute('data-rank', '1');
+                } 
+                console.log(`Ранг обновлен: ${data.rank.name} (уровень ${data.rank.level})`);
+                
+                if (debugInfo) {
+                    debugInfo.textContent = `Ранг загружен: ${data.rank.name}`;
+                    setTimeout(() => debugInfo.style.display = 'none', 3000);
+                }
+                
+            } catch (error) {
+                if (debugInfo) {
+                    debugInfo.textContent = 'Ошибка загрузки ранга';
+                    debugInfo.style.color = 'red';
+                }
+            }
+        }
+        
+        // Загрузка всех рангов
+        async function loadAllRanks() {
+            try {
+                const response = await fetch('api.php?action=all_ranks');
+                allRanks = await response.json();
+                
+                const debugInfo = document.getElementById('debugInfo');
+                if (debugInfo && allRanks.length > 0) {
+                    debugInfo.textContent = `Загружено ${allRanks.length} рангов`;
+                }
+            } catch (error) {
+                const debugInfo = document.getElementById('debugInfo');
+                if (debugInfo) {
+                    debugInfo.textContent = 'Ошибка загрузки рангов';
+                }
+            }
+        }
+        
+        // Показ модального окна рангов - УПРОЩЕННЫЙ
+        function showRankModal() {
+            const modal = document.getElementById('rankModal');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            if (debugInfo) {
+                debugInfo.style.display = 'block';
+                debugInfo.textContent = 'Попытка открыть модальное окно...';
+                debugInfo.style.color = 'yellow';
+            }
+            
+            if (modal) {
+                modal.classList.add('active'); // ← Добавляем класс
+                renderRanksList();
+                
+                if (debugInfo) {
+                    debugInfo.textContent = 'Модальное окно открыто!';
+                    debugInfo.style.color = 'green';
+                    setTimeout(() => debugInfo.style.display = 'none', 2000);
+                }
+            } else {
+                if (debugInfo) {
+                    debugInfo.textContent = 'ОШИБКА: Модальное окно не найдено!';
+                    debugInfo.style.color = 'red';
+                }
+            }
+        }
+        
+        // Закрытие модального окна
+        function closeRankModal() {
+            const modal = document.getElementById('rankModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Отображение списка рангов
+        function renderRanksList() {
+            const container = document.getElementById('ranksList');
+            if (!container) return;
+            
+            if (!allRanks || allRanks.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center;">Ранги не загружены</p>';
+                return;
+            }
+            
+            let html = '';
+            // Создаем блок текущего ранга, если он есть
+            let currentUserCard = '';
+            if (currentUserRank) {
+                const rank = currentUserRank.rank;
+                currentUserCard = `
+                    <div class="rank-item current-rank" style="margin-bottom: 24px;">
+                        <img src="images/icons/${rank.icon}" onerror="this.style.display='none'" />
+                        <div class="rank-item-info">
+                            <div class="rank-item-name">${rank.name}</div>
+                            <div class="rank-item-range" style="color: #e0e0e0; font-weight: 500;">Ваш текущий ранг • ${currentUserRank.totalEarned.toLocaleString()} сум</div>
+                        </div>
+                        <div style="
+                            position: absolute; 
+                            right: 12px; 
+                            top: 6px; 
+                            font-size: 0.6rem; 
+                            color: #00f0ff; 
+                            font-weight: 700; 
+                            background: rgba(0, 240, 255, 0.2); 
+                            padding: 3px 7px; 
+                            border-radius: 12px; 
+                            backdrop-filter: blur(4px); 
+                            border: 1px solid rgba(0, 240, 255, 0.5);
+                            z-index: 2;
+                            white-space: nowrap;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+                        ">👑 АКТИВЕН</div>
+                    </div>
+                `;
+            }
+            
+            allRanks.forEach(rank => {
+                const isCurrentRank = currentUserRank && currentUserRank.rank.level === rank.level;
+                if (isCurrentRank) return; // Skip current rank as it's shown above
+                
+                html += `
+                    <div class="rank-item">
+                        <img src="images/icons/${rank.icon}" style="width: 32px; height: 32px;" onerror="this.style.display='none'" />
+                        <div class="rank-item-info">
+                            <div class="rank-item-name">${rank.name}</div>
+                            <div class="rank-item-range">${rank.range}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = currentUserCard + html;
+        }
+        
+        // Функция для периодической проверки и обновления ранга
+        async function checkAndRefreshRank() {
+            try {
+                const response = await fetch(`api.php?action=user_rank&userId=${tgUser.id}`);
+                const data = await response.json();
+                
+                if (data && data.rank) {
+                    const currentRankLevel = document.body.getAttribute('data-rank');
+                    const newRankLevel = data.rank.level.toString();
+                    
+                    // Обновляем только если ранг изменился
+                    if (currentRankLevel !== newRankLevel) {
+                        document.body.setAttribute('data-rank', newRankLevel);
+                        console.log(`🔄 Ранг обновлён с ${currentRankLevel} на ${newRankLevel}`);
+                        
+                        // Также обновляем отображение в профиле
+                        const rankIcon = document.getElementById('rankIcon');
+                        const rankName = document.getElementById('rankName');
+                        const rankProgress = document.getElementById('rankProgress');
+                        
+                        if (rankIcon) rankIcon.src = `images/icons/${data.rank.icon}`;
+                        if (rankName) rankName.textContent = data.rank.name;
+                        if (rankProgress) rankProgress.textContent = `${data.totalEarned.toLocaleString()} сум заработано`;
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка автообновления ранга:', error);
+            }
+        }
+        
+        // Запускаем проверку каждые 10 секунд
+        setInterval(checkAndRefreshRank, 10000);
+        
+        // Также запускаем сразу после загрузки профиля
+        setTimeout(checkAndRefreshRank, 3000);
+        
+        // Добавляем обработчик клика ПРЯМО в HTML - без onclick
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ждем немного, чтобы HTML точно загрузился
+            setTimeout(() => {
+                const rankSection = document.querySelector('.profile-rank');
+                if (rankSection) {
+                    rankSection.addEventListener('click', showRankModal);
+                    
+                    const debugInfo = document.getElementById('debugInfo');
+                    if (debugInfo) {
+                        debugInfo.style.display = 'block';
+                        debugInfo.textContent = 'Обработчик клика установлен!';
+                        debugInfo.style.color = 'green';
+                        setTimeout(() => debugInfo.style.display = 'none', 3000);
+                    }
+                }
+            }, 500);
+        });
+        
+        // Заглушки для функций редактирования (если они используются)
+        function editUserInfo(field) {
+            console.log('Editing field:', field);
+            // Здесь будет логика редактирования
+        }
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        let currentEmail = '';
+
+        async function checkEmailStatusInProfile(user) {
+            try {
+                const response = await fetch(`api.php?action=email_verification_status&userId=${tgUser.id}`);
+                const data = await response.json();
+                
+                const emailBlock = document.getElementById('emailVerificationBlock');
+                if (!emailBlock) return;
+                
+                if (!data.hasEmail || (data.hasEmail && !data.verified)) {
+                    const message = !data.hasEmail 
+                        ? 'Добавьте email и получите +500 сум'
+                        : `Подтвердите ${data.email} и получите +500 сум`;
+                    emailBlock.innerHTML = `
+                        <div style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1)); border: 2px solid rgba(255, 193, 7, 0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; cursor: pointer;" onclick="openEmailModal()">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="font-size: 2rem;">📧</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 700; color: #ffc107; font-size: 1.1rem; margin-bottom: 5px;">Email ${!data.hasEmail ? 'не указан' : 'не подтвержден'}</div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">${message}</div>
+                                </div>
+                                <div style="color: #ffc107; font-size: 1.5rem;">→</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    emailBlock.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('Ошибка проверки email:', error);
+            }
+        }
+        
+        function openEmailModal() {
+            document.getElementById('emailModal').style.display = 'flex';
+            document.getElementById('emailText').textContent = 'Введите ваш email для получения кода';
+        }
+        
+        function closeEmailModal() {
+            document.getElementById('emailModal').style.display = 'none';
+        }
+        
+        function isValidEmail(email) {
+            const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return regex.test(email) && email.length <= 254;
+        }
+        
+        async function sendEmailCode() {
+            const emailInput = document.getElementById('emailInput');
+            const email = escapeHtml(emailInput.value.trim());
+            
+            if (!email || !isValidEmail(email)) {
+                alert('Введите корректный email');
+                return;
+            }
+            
+            if (email.length > 100) {
+                alert('Email слишком длинный (макс 100 символов)');
+                return;
+            }
+            
+            currentEmail = email;
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.textContent = 'Отправляем...';
+            
+            try {
+                await fetch('api.php?action=update_user_email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: tgUser.id, email })
+                });
+                
+                const response = await fetch(`api.php?action=resend_verification&userId=${tgUser.id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Код отправлен на ' + email);
+                    document.getElementById('emailInput').style.display = 'none';
+                    document.getElementById('codeInput').style.display = 'block';
+                    document.getElementById('sendBtn').style.display = 'none';
+                    document.getElementById('verifyBtn').style.display = 'block';
+                } else {
+                    alert(result.message || 'Ошибка отправки');
+                }
+            } catch (error) {
+                alert('Ошибка отправки');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Отправить код';
+            }
+        }
+        
+        async function verifyEmailCode() {
+            const codeInput = document.getElementById('codeInput');
+            const code = codeInput.value.trim();
+            
+            // Валидация: только цифры, ровно 6 символов
+            if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+                alert('Введите корректный 6-значный код (только цифры)');
+                return;
+            }
+            
+            try {
+                const response = await fetch('api.php?action=verify_email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: tgUser.id, code })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Email подтвержден! +500 сум начислено');
+                    closeEmailModal();
+                    location.reload();
+                } else {
+                    alert(result.message || 'Неверный код');
+                }
+            } catch (error) {
+                alert('Ошибка');
+            }
+        }
+        
+        checkEmailStatus();
+    </script>
+    
+    <!-- Gaming Particle System -->
+    <script>
+        // Particle system for gaming atmosphere
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                
+                // Random neon colors
+                const colors = ['#00f0ff', '#b624ff', '#ff006e', '#00d4ff', '#ffea00'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                // Wrap around screen
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+                
+                // Pulse opacity
+                this.opacity += Math.sin(Date.now() * 0.001) * 0.001;
+                if (this.opacity < 0.1) this.opacity = 0.1;
+                if (this.opacity > 0.6) this.opacity = 0.6;
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Create particles
+        const particles = [];
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1;
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connections between nearby particles
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        ctx.strokeStyle = p1.color;
+                        ctx.globalAlpha = (1 - distance / 150) * 0.2;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        let animationFrameId;
+        let isAnimating = true;
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                isAnimating = false;
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+            } else {
+                isAnimating = true;
+                animate();
+            }
+        });
+        
+        function animate() {
+            if (!isAnimating) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1;
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connections between nearby particles
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        ctx.strokeStyle = p1.color;
+                        ctx.globalAlpha = (1 - distance / 150) * 0.2;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        // Отмечаем что прелоадер уже показывался
+        sessionStorage.setItem('preloaderShown', 'true');
+        
+        // Защита от повторной отправки форм
+        let isSubmitting = false;
+        
+        const originalSendEmailCode = sendEmailCode;
+        sendEmailCode = async function() {
+            if (isSubmitting) return;
+            isSubmitting = true;
+            try {
+                await originalSendEmailCode();
+            } finally {
+                setTimeout(() => isSubmitting = false, 2000);
+            }
+        };
+        
+        const originalVerifyEmailCode = verifyEmailCode;
+        verifyEmailCode = async function() {
+            if (isSubmitting) return;
+            isSubmitting = true;
+            try {
+                await originalVerifyEmailCode();
+            } finally {
+                setTimeout(() => isSubmitting = false, 2000);
+            }
+        };    
+    </script>
+    
+    <div id="emailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(10px);">
+        <div style="background: linear-gradient(145deg, rgba(0, 240, 255, 0.1), rgba(182, 36, 255, 0.1)); border: 2px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);">
+            <h3 style="color: #00f0ff; margin-bottom: 20px; text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);">📧 Подтверждение email</h3>
+            <p id="emailText" style="margin-bottom: 20px; color: #a0a0a0;"></p>
+            <input type="email" id="emailInput" placeholder="Введите email" autocomplete="off" maxlength="100" style="width: 100%; padding: 12px; border: 2px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); color: white; border-radius: 8px; margin-bottom: 15px; font-size: 16px;">
+            <input type="text" id="codeInput" placeholder="Введите код (6 цифр)" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="off" style="width: 100%; padding: 12px; border: 2px solid rgba(0, 240, 255, 0.3); background: rgba(0, 0, 0, 0.5); color: white; border-radius: 8px; margin-bottom: 15px; font-size: 20px; text-align: center; letter-spacing: 5px; display: none;">
+            <button onclick="sendEmailCode()" id="sendBtn" style="width: 100%; padding: 12px; background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(182, 36, 255, 0.3)); color: white; border: 2px solid rgba(0, 240, 255, 0.5); border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 10px; font-weight: 600; text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);">Отправить код</button>
+            <button onclick="verifyEmailCode()" id="verifyBtn" style="width: 100%; padding: 12px; background: linear-gradient(135deg, rgba(48, 209, 88, 0.3), rgba(0, 212, 255, 0.3)); color: white; border: 2px solid rgba(48, 209, 88, 0.5); border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 10px; font-weight: 600; display: none;">Подтвердить</button>
+            <button onclick="closeEmailModal()" style="width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.1); color: #a0a0a0; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; font-size: 16px; cursor: pointer;">Закрыть</button>
+        </div>
+    </div>
+</body>
+</html>

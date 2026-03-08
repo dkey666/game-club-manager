@@ -1,0 +1,17 @@
+{
+  "name": "dkx-game-club/os-manager",
+  "description": "Open-source Telegram WebApp and club management system for gaming clubs.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.1",
+    "phpmailer/phpmailer": "^6.10"
+  },
+  "suggest": {
+    "ext-sqlite3": "Required for the local SQLite database.",
+    "ext-openssl": "Required for secure SMTP connections."
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Банд қилиш</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --neon-purple: #a855f7;
+            --neon-cyan: #06b6d4;
+            --neon-pink: #ec4899;
+            --neon-green: #10b981;
+            --neon-orange: #f59e0b;
+            --gaming-bg: #0a0a14;
+            --gaming-card: #13132b;
+            --success-green: #10b981;
+            --danger-red: #dc3545;
+            --warning-yellow: #ffc107;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0a0a14 0%, #0f0f23 50%, #0a0a14 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: grid-move 20s linear infinite;
+        }
+        
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Glowing particles */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(168, 85, 247, 0.3) 2px, transparent 2px),
+                radial-gradient(circle, rgba(6, 182, 212, 0.3) 1px, transparent 1px),
+                radial-gradient(circle, rgba(236, 72, 153, 0.3) 1.5px, transparent 1.5px);
+            background-size: 200px 200px, 150px 150px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            z-index: -1;
+            animation: particles-float 15s ease-in-out infinite;
+        }
+        
+        @keyframes particles-float {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(-20px); opacity: 0.8; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 15px 100px;
+            box-sizing: border-box;
+        }
+        
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(168, 85, 247, 0.5);
+            color: white;
+            border-radius: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Exo 2', sans-serif;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+            border-color: rgba(168, 85, 247, 0.8);
+        }
+        
+        .back-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin: 80px 0 40px;
+        }
+        
+        .title {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            animation: glow-pulse 3s ease-in-out infinite;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.8)); }
+            50% { filter: drop-shadow(0 0 40px rgba(236, 72, 153, 1)); }
+        }
+        
+        /* Hall switcher */
+        .hall-switcher {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding: 5px 0;
+            justify-content: center;
+        }
+        
+        .hall-btn {
+            flex: 1;
+            min-width: 120px;
+            max-width: 200px;
+            padding: 14px 20px;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            background: rgba(19, 19, 43, 0.6);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'Exo 2', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .hall-btn.active {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-color: transparent;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .hall-btn:hover:not(.active) {
+            background: rgba(30, 20, 60, 0.8);
+            border-color: rgba(168, 85, 247, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        /* Hall description */
+        .hall-description {
+            background: linear-gradient(135deg, rgba(19, 19, 43, 0.8), rgba(30, 20, 60, 0.6));
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 18px 24px;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--neon-cyan);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Computers grid */
+        .computers-grid {
+            display: grid;
+            gap: 12px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            padding: 20px;
+            grid-template-columns: repeat(5, 1fr);
+            box-sizing: border-box;
+            background: linear-gradient(135deg, rgba(19, 19, 43, 0.6), rgba(30, 20, 60, 0.4));
+            border-radius: 20px;
+            border: 2px solid rgba(168, 85, 247, 0.2);
+        }
+        
+        .hall-1 .computers-grid,
+        .hall-2 .computers-grid,
+        .hall-3 .computers-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        
+        .computer {
+            aspect-ratio: 1;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .computer-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 8px;
+        }
+        
+        .computer-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        .computer-number {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .computer-status {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        
+        /* Computer states */
+        .computer.free {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(6, 182, 212, 0.7));
+            border-color: rgba(16, 185, 129, 0.5);
+            animation: pulse-available 3s ease-in-out infinite;
+        }
+        
+        .computer.free:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
+            border-color: rgba(16, 185, 129, 0.8);
+        }
+        
+        .computer.free .computer-icon::before {
+            content: '✓';
+            color: white;
+        }
+        
+        @keyframes pulse-available {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            50% { 
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+        }
+        
+        .computer.occupied {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.8), rgba(200, 35, 51, 0.7));
+            border-color: rgba(220, 53, 69, 0.5);
+            cursor: not-allowed;
+        }
+        
+        .computer.occupied .computer-icon::before {
+            content: '✗';
+            color: white;
+        }
+        
+        .computer.booked {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.8), rgba(245, 158, 11, 0.7));
+            border-color: rgba(255, 193, 7, 0.5);
+            animation: pulse-booked 2s ease-in-out infinite;
+        }
+        
+        .computer.booked .computer-icon::before {
+            content: '🔒';
+            filter: none;
+        }
+        
+        @keyframes pulse-booked {
+            0%, 100% { 
+                border-color: rgba(255, 193, 7, 0.5);
+            }
+            50% { 
+                border-color: rgba(255, 193, 7, 1);
+                box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+            }
+        }
+        
+        /* Legend */
+        .legend {
+            background: linear-gradient(135deg, rgba(19, 19, 43, 0.8), rgba(30, 20, 60, 0.6));
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .legend-icon {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+        
+        .legend-icon.free::before {
+            content: '✓';
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+        
+        .legend-icon.occupied::before {
+            content: '✗';
+            color: var(--danger-red);
+            font-weight: bold;
+        }
+        
+        .legend-icon.booked::before {
+            content: '🔒';
+        }
+        
+        /* Booking form */
+        .booking-form {
+            background: linear-gradient(135deg, rgba(19, 19, 43, 0.9), rgba(30, 20, 60, 0.8));
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(168, 85, 247, 0.4);
+            border-radius: 24px;
+            padding: 35px 30px;
+            margin: 40px auto 0;
+            max-width: 600px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .booking-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            background-size: 200% 100%;
+            animation: gradient-move 3s linear infinite;
+        }
+        
+        @keyframes gradient-move {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        .booking-form h3 {
+            font-family: 'Exo 2', sans-serif;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--neon-cyan);
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: 'Exo 2', sans-serif;
+        }
+        
+        .form-input {
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            background: rgba(19, 19, 43, 0.6);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            padding: 16px 18px;
+            color: white;
+            font-size: 16px;
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-purple);
+            background: rgba(30, 20, 60, 0.8);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Exo 2', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            color: white;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(16, 185, 129, 0.8);
+        }
+        
+        .btn-secondary {
+            background: rgba(19, 19, 43, 0.8);
+            border: 2px solid rgba(168, 85, 247, 0.4);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(30, 20, 60, 0.9);
+            border-color: rgba(168, 85, 247, 0.7);
+            transform: translateY(-3px);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 12px 80px;
+            }
+            
+            .back-btn {
+                top: 12px;
+                left: 12px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            
+            .header {
+                margin: 60px 0 30px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .computers-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                padding: 15px;
+                max-width: 100%;
+            }
+            
+            .hall-1 .computers-grid,
+            .hall-2 .computers-grid,
+            .hall-3 .computers-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .computer-icon {
+                font-size: 1.5rem;
+            }
+            
+            .computer-number {
+                font-size: 0.85rem;
+            }
+            
+            .computer-status {
+                font-size: 0.7rem;
+            }
+            
+            .legend {
+                gap: 12px;
+                padding: 15px;
+            }
+            
+            .legend-item {
+                font-size: 0.9rem;
+                padding: 10px 14px;
+            }
+            
+            .booking-form {
+                padding: 25px 20px;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .computers-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                padding: 12px;
+            }
+            
+            .hall-switcher {
+                gap: 8px;
+            }
+            
+            .hall-btn {
+                min-width: 90px;
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .computer {
+                font-size: 0.85rem;
+            }
+            
+            .computer-icon {
+                font-size: 1.3rem;
+            }
+            
+            .computer-number {
+                font-size: 0.75rem;
+            }
+            
+            .computer-status {
+                font-size: 0.65rem;
+            }
+            
+            .legend {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .legend-item {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="goBack()">← <span>Ортга</span></button>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🖥️Банд  қилиш</h1>
+        </div>
+        
+        <div class="hall-switcher">
+            <button class="hall-btn active" onclick="switchHall(1)">Зал 1</button>
+            <button class="hall-btn" onclick="switchHall(2)">Зал 2</button>
+            <button class="hall-btn" onclick="switchHall(3)">Зал 3</button>
+        </div>
+        
+        <div class="hall-description" id="hallDescription">
+            🎯 Онлайн ўйинлар: CS2, Valorant, Dota 2, LoL ва бошқ.
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon free"></div>
+                <span>Бўш</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon occupied"></div>
+                <span>Банд</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon booked"></div>
+                <span>Брон қилинган</span>
+            </div>
+        </div>
+        
+        <div class="computers-grid" id="computersGrid">
+            <!-- Компьютерлар динамик тарзда юкланади -->
+        </div>
+        
+        <div class="booking-form" id="bookingForm">
+            <h3>ПК №<span id="selectedPcNumber"></span> ни брон қилиш</h3>
+            <div class="form-group">
+                <label class="form-label">Исмингизни киритинг</label>
+                <input type="text" class="form-input" id="userName" placeholder="Исмингиз">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Телефон рақам</label>
+                <input type="tel" class="form-input" id="userPhone" placeholder="+998 XX XXX XX XX">
+            </div>
+            <div class="form-buttons">
+                <button class="btn btn-secondary" onclick="cancelBooking()">Бекор қилиш</button>
+                <button class="btn btn-primary" onclick="submitBooking()">Брон қилиш</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentHall = 1;
+        let selectedPc = null;
+        let computers = [];
+        const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+        
+        // Инициализация
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        loadComputers();
+        
+        async function loadComputers() {
+            try {
+                const response = await fetch('../api.php?action=computers');
+                const newComputers = await response.json();
+                
+                // Обновляем только если данные успешно загружены
+                if (Array.isArray(newComputers)) {
+                    computers = newComputers;
+                    renderComputers();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки компьютеров:', error);
+                // В случае ошибки не обновляем отображение
+            }
+        }
+        
+        const hallDescriptions = {
+            ru: {
+                1: '🎯 Онлайн ўйинлар: CS2, Valorant, Dota 2, LoL ва бошқ.',
+                2: '⚔️ Аралаш: 5 ПК онлайн + 5 ПК CS 1.6',
+                3: '🏆 Ретро: Оффлайн ўйинлар ва классик уйинлар'
+            },
+            uz: {
+                1: '🎯 Онлайн ўйинлар: CS2, Valorant, Dota 2, LoL ва бошқ.',
+                2: '⚔️ Аралаш: 5 ПК онлайн + 5 ПК CS 1.6',
+                3: '🏆 Ретро: Оффлайн ўйинлар ва классик шутерлар'
+            }
+        };
+        
+        function switchHall(hall) {
+            currentHall = hall;
+            
+            // Обновляем кнопки
+            document.querySelectorAll('.hall-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.hall-btn')[hall - 1].classList.add('active');
+            
+            // Добавляем класс зала к контейнеру для CSS стилизации
+            const container = document.querySelector('.container');
+            container.className = container.className.replace(/hall-\d+/g, '');
+            container.classList.add(`hall-${hall}`);
+            
+            // Получаем текущий язык
+            const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+            
+            // Напрямую обновляем текст описания
+            document.getElementById('hallDescription').textContent = hallDescriptions[currentLang][hall];
+            
+            // Перерисовываем компьютеры
+            renderComputers();
+        }
+        
+        function renderComputers() {
+            const grid = document.getElementById('computersGrid');
+            const startPc = (currentHall - 1) * 10 + 1;
+            const endPc = currentHall * 10;
+            
+            // Получаем текущий язык
+            const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+            
+            // Переводы статусов
+            const statusTranslations = {
+                ru: {
+                    free: 'Бўш',
+                    occupied: 'Банд',
+                    booked: 'Брон'
+                },
+                uz: {
+                    free: "Bo'sh",
+                    occupied: 'Band',
+                    booked: 'Bron qilingan'
+                }
+            };
+            
+            grid.innerHTML = '';
+            
+            // Проверяем, загружены ли данные о компьютерах
+            if (!computers || computers.length === 0) {
+                loadComputers();
+                return;
+            }
+            
+            for (let i = startPc; i <= endPc; i++) {
+                const computer = computers.find(c => c.id === i);
+                const status = computer ? computer.status : 'free';
+                
+                const computerEl = document.createElement('div');
+                computerEl.className = `computer ${status}`;
+                computerEl.onclick = () => selectComputer(i);
+                
+                const statusText = statusTranslations[currentLang][status] || statusTranslations.ru[status];
+                
+                computerEl.innerHTML = `
+                    <div class="computer-content">
+                        <div class="computer-icon"></div>
+                        <div class="computer-number">ПК ${i}</div>
+                        <div class="computer-status">${statusText}</div>
+                    </div>
+                `;
+                
+                grid.appendChild(computerEl);
+            }
+        }
+        
+        function selectComputer(pcId) {
+            const computer = computers.find(c => c.id === pcId);
+            
+            if (computer && computer.status !== 'free') {
+                window.Telegram.WebApp.showAlert('Бу ПК банд қилиб булмайди');
+                return;
+            }
+            
+            selectedPc = pcId;
+            document.getElementById('selectedPcNumber').textContent = pcId;
+            document.getElementById('bookingForm').style.display = 'block';
+            document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function cancelBooking() {
+            selectedPc = null;
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('userName').value = '';
+            document.getElementById('userPhone').value = '';
+        }
+        
+        async function submitBooking() {
+            const userName = document.getElementById('userName').value.trim();
+            const userPhone = document.getElementById('userPhone').value.trim();
+            
+            if (!userName || !userPhone) {
+                window.Telegram.WebApp.showAlert('Илтимос, барча майдонларни тўлдиринг');
+                return;
+            }
+            
+            if (!tgUser) {
+                window.Telegram.WebApp.showAlert('Ошибка получения данных пользователя');
+                return;
+            }
+            
+            // Блокируем кнопку
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Юборилмоқда...';
+            
+            try {
+                const response = await fetch('../api.php?action=booking_request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: tgUser.id,
+                        computerId: selectedPc,
+                        userName: userName,
+                        userPhone: userPhone
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.Telegram.WebApp.showAlert('Сўров юборилди! Тасдиқлаш учун сиз билан боғланамиз.');
+                    cancelBooking();
+                    loadComputers(); // Обновляем данные
+                } else {
+                    window.Telegram.WebApp.showAlert(result.message || 'Банд қилишда хатолик');
+                }
+            } catch (error) {
+                console.error('Банд қилишда хатолик:', error);
+                window.Telegram.WebApp.showAlert('Хатолик юз берди. Кейинроқ уринтиринг.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Банд қилиш';
+            }
+        }
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        // Автообновление каждые 10 секунд
+        setInterval(loadComputers, 10000);
+        
+        // Обновление при возвращении в приложение
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadComputers();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+        // Обработчик для кнопки "Отмена"
+        document.querySelector('.btn-secondary').onclick = cancelBooking;
+        
+        // Обработчик для кнопки "Забронировать"
+        document.querySelector('.btn-primary').onclick = submitBooking;
+    });
+    </script>
+</body>
+</html>

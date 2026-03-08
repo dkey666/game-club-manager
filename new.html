@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Admin Panel - DKX Game Club</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-soft: 0 4px 20px rgba(102, 126, 234, 0.1);
+            --accent-green: #4CAF50;
+            --accent-red: #f44336;
+            --accent-orange: #FF9500;
+            --text-primary: #2d3561;
+            --text-secondary: rgba(45, 53, 97, 0.7);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #e8eef7 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .app-container {
+            max-width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            z-index: 200;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:active::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:active {
+            transform: scale(0.95);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+        }
+
+        .tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .tabs::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .tabs::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 3px;
+        }
+        
+        .tab-btn {
+            flex-shrink: 0;
+            min-width: 100px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .tab-btn:active {
+            transform: scale(0.98);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Computers Grid - ИСПРАВЛЕНО */
+        .computers-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .computer-admin {
+            aspect-ratio: 1;
+            min-height: 70px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+        }
+
+        .computer-admin:active {
+            transform: scale(0.95);
+        }
+
+        .computer-content {
+            text-align: center;
+            padding: 5px;
+        }
+
+        .computer-number {
+            font-size: 10px;
+            margin-bottom: 2px;
+            line-height: 1.2;
+        }
+
+        .computer-status {
+            font-size: 9px;
+            line-height: 1.1;
+        }
+
+        .computer-admin.free {
+            background: linear-gradient(135deg, #34c759, #30d158);
+            color: white;
+        }
+
+        .computer-admin.occupied {
+            background: linear-gradient(135deg, #ff3b30, #ff453a);
+            color: white;
+        }
+
+        .computer-admin.booked {
+            background: linear-gradient(135deg, #ff9500, #ffb340);
+            color: #000;
+        }
+
+        /* Hall Switcher */
+        .hall-switcher-admin {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .hall-switcher-admin .tab-btn {
+            flex: 1;
+            min-width: auto;
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary-gradient);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+        #points .card {
+            position: sticky;
+            top: 90px;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            transform: scale(1.01);
+        }
+
+        .form-textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        /* List Items */
+        .list-item {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:active {
+            transform: scale(0.98);
+        }
+
+        .list-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .list-item p {
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        /* Task Cards */
+        .task-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s ease;
+        }
+        
+        .task-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .task-card:active {
+            transform: scale(0.98);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 15px;
+        }
+        
+        .task-title {
+            color: #007aff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+            line-height: 1.3;
+        }
+        
+        .delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(255, 59, 48, 0.25);
+            transform: scale(1.1);
+        }
+
+        .delete-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 59, 48, 0.25);
+        }
+
+        .task-description {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .task-reward {
+            background: var(--accent-green);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .task-date {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        /* Points Actions */
+        .points-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .points-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        /* User Info */
+        .user-info {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .user-info h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .user-info p {
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        /* Modal */
+        .status-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .status-modal.active {
+            display: flex;
+        }
+
+        .status-modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            position: relative;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-modal-title {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .status-buttons-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .status-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-btn:active {
+            transform: scale(0.95);
+        }
+
+        .status-btn.free {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .status-btn.occupied {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .status-btn.booked {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        .status-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 10px;
+            color: var(--text-secondary);
+            min-width: 55px;
+        }
+
+        .nav-item.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* Responsive - ИСПРАВЛЕНО */
+        @media (max-width: 768px) {
+            .tabs {
+                scrollbar-width: none;
+            }
+            
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .mini-activity {
+                max-width: 250px;
+                font-size: 10px;
+                padding: 10px 12px;
+            }
+            
+            body {
+                touch-action: pan-y;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .computers-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .computer-admin {
+                min-height: 65px;
+                font-size: 10px;
+            }
+            
+            .computer-number {
+                font-size: 9px;
+            }
+            
+            .computer-status {
+                font-size: 8px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .points-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .points-input {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .mini-activity {
+                max-width: 220px;
+                font-size: 9px;
+                padding: 8px 10px;
+            }
+            
+            .activity-logs {
+                max-height: 40px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .computers-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .computer-admin {
+                min-height: 60px;
+                font-size: 9px;
+            }
+            
+            .computer-number {
+                font-size: 8px;
+            }
+            
+            .computer-status {
+                font-size: 7px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Hide scrollbar */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        iframe {
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .card iframe {
+            width: 100%;
+            min-height: 600px;
+        }
+        
+        @media (max-width: 480px) {
+            .card iframe {
+                min-height: 500px;
+            }
+        }
+
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Admin Terminal Styles - ИСПРАВЛЕНО */
+        .admin-terminal {
+            background: rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .admin-terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 11px;
+            opacity: 0.8;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .admin-terminal-content {
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .admin-log-entry {
+            margin-bottom: 4px;
+            font-size: 10px;
+            line-height: 1.3;
+            opacity: 0;
+            transform: translateY(5px);
+            animation: miniLogAppear 0.3s ease forwards;
+        }
+
+        .admin-log-time {
+            color: #666;
+            margin-right: 6px;
+        }
+
+        .admin-log-pc {
+            color: #007aff;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .admin-log-action {
+            color: var(--text-secondary);
+        }
+        
+        @keyframes miniLogAppear {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .admin-log-entry {
+            animation: miniLogAppear 0.3s ease forwards;
+        }
+        
+        /* Убедимся, что контейнер логов виден */
+        .admin-terminal-content {
+            display: block !important;
+            opacity: 1;
+        }
+        
+        /* Кнопка уведомлений */
+        .notifications-button {
+            position: fixed;
+            top: 15px;
+            left: 60px;
+            background: var(--surface-1);
+            backdrop-filter: blur(var(--blur-medium));
+            color: var(--text-primary);
+            border: 1px solid var(--surface-2);
+            padding: 10px 16px;
+            border-radius: var(--radius-medium);
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .notifications-badge {
+            background: #ff3b30;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        /* Модальное окно уведомлений */
+        .notifications-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .notifications-modal.active {
+            display: flex;
+        }
+        
+        .notifications-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007aff;
+            color: #333;
+        }
+        
+        .notification-time {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .notification-text {
+            font-size: 13px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()" title="Назад">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+        <!-- Кнопка уведомлений -->
+            <button class="notifications-button" onclick="openNotifications()">
+                🔔 <span>Уведомления</span>
+                <span class="notifications-badge" id="notificationsBadge" style="display: none;">0</span>
+            </button>
+            
+            <!-- Модальное окно уведомлений -->
+            <div id="notificationsModal" class="notifications-modal">
+                <div class="notifications-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #007aff; margin: 0;">🔔 Уведомления</h3>
+                        <button onclick="closeNotifications()" style="background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
+                    </div>
+                    <div id="notificationsList">
+                        <!-- Уведомления будут здесь -->
+                    </div>
+                </div>
+            </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stats Overview -->
+            <div class="card">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="free-pcs">0</div>
+                        <div class="stat-label">Свободных ПК</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="online-users">0</div>
+                        <div class="stat-label">Онлайн</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-terminal">
+                <div class="admin-terminal-header">
+                    <span>Activity Log</span>
+                    <span id="admin-activity-count">Последние операции</span>
+                </div>
+                <div class="admin-terminal-content" id="admin-terminal-logs">
+                    <!-- Здесь будут записи о бронированиях и статусах ПК -->
+                </div>
+            </div>
+    
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('computers')">ПК</button>
+                <button class="tab-btn" onclick="switchTab('bookings')">Брони</button>
+                <button class="tab-btn" onclick="switchTab('users')">Пользователи</button>
+                <button class="tab-btn" onclick="switchTab('tasks')">Задания</button>
+                <button class="tab-btn" onclick="switchTab('points')">Баллы</button>
+                <button class="tab-btn" onclick="switchTab('history')">История</button>
+                <button class="tab-btn" onclick="switchTab('statistics')">Статистика</button>
+            </div>
+
+            <!-- Computers Tab -->
+            <div id="computers" class="tab-content active">
+                <div class="card">
+                    <div class="hall-switcher-admin">
+                        <button class="tab-btn active" onclick="switchHallAdmin(1)">Зал 1</button>
+                        <button class="tab-btn" onclick="switchHallAdmin(2)">Зал 2</button>
+                        <button class="tab-btn" onclick="switchHallAdmin(3)">Зал 3</button>
+                    </div>
+                    
+                    <h3 class="card-title" id="currentHallTitle">
+                        <i class="fas fa-desktop"></i>
+                        Зал 1 - Онлайн игры
+                    </h3>
+                    
+                    <div class="computers-grid" id="adminComputersGrid">
+                        <!-- ПК будут загружены динамически -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings Tab -->
+            <div id="bookings" class="tab-content">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Бронирования
+                    </h3>
+                    <div id="bookingsList">
+                        <!-- Список бронирований -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-users"></i>
+                        Пользователи
+                    </h3>
+                    <div id="usersList">
+                        <!-- Список пользователей -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks" class="tab-content">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-plus"></i>
+                        Создать задание
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Название задания</label>
+                        <input type="text" class="form-input" id="taskTitle" placeholder="Подписаться на Instagram">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-textarea" id="taskDescription" placeholder="Подробное описание"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Ссылка</label>
+                        <input type="url" class="form-input" id="taskLink" placeholder="https://instagram.com/asus_cs.uz">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Награда (сум)</label>
+                        <input type="number" class="form-input" id="taskPoints" placeholder="1000">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="createTask()">
+                        Создать задание
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-list"></i>
+                        Существующие задания
+                    </h3>
+                    <div id="tasksList">
+                        <!-- Задания будут загружены динамически -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points Tab -->
+            <div id="points" class="tab-content">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-search"></i>
+                        Найти пользователя
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Номер телефона или @username</label>
+                        <input type="text" class="form-input" id="userSearch" placeholder="+998911234567 или @username">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="searchUser()">Найти</button>
+                    
+                    <div id="userSearchResult" style="display: none; margin-top: 15px;">
+                        <!-- Результат поиска пользователя -->
+                    </div>
+                </div>
+            </div>
+            
+            <div id="history" class="tab-content">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i>
+                        История операций
+                    </h3>
+                    <iframe src="history.html" width="100%" height="600px" frameborder="0"></iframe>
+                </div>
+            </div>
+            
+            <div id="statistics" class="tab-content">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Статистика бота
+                    </h3>
+                    <iframe src="statistics.html" width="100%" height="600px" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('computers')">
+                <i class="fas fa-desktop nav-icon"></i>
+                <span>ПК</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('bookings')">
+                <i class="fas fa-calendar-alt nav-icon"></i>
+                <span>Брони</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('users')">
+                <i class="fas fa-users nav-icon"></i>
+                <span>Юзеры</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('tasks')">
+                <i class="fas fa-tasks nav-icon"></i>
+                <span>Задания</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('points')">
+                <i class="fas fa-coins nav-icon"></i>
+                <span>Баллы</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="statusModal" class="status-modal">
+        <div class="status-modal-content">
+            <button class="status-modal-close" onclick="closeStatusModal()">&times;</button>
+            <h3 class="status-modal-title">Статус ПК <span id="modalPcNumber">1</span></h3>
+            
+            <div class="status-buttons-grid">
+                <button class="status-btn free" onclick="changeComputerStatusModal('free')">
+                    Свободен
+                </button>
+                <button class="status-btn occupied" onclick="changeComputerStatusModal('occupied')">
+                    Занят
+                </button>
+                <button class="status-btn booked" onclick="changeComputerStatusModal('booked')">
+                    Бронь
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Глобальные переменные
+        let currentHallAdmin = 1;
+        let currentUserPage = 1;
+        let currentBookingPage = 1;
+        let computers = [];
+        let selectedUser = null;
+        let selectedPcId = null;
+        let activityLogs = [];
+        
+        // Получаем данные пользователя
+        let tgUser = null;
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+        }
+        
+        const ADMINS = [5746148926, 226890911];
+
+        if (!ADMINS.includes(tgUser?.id)) {
+            document.body.innerHTML = '<div style="text-align: center; padding: 50px; color: white;"><h2>❌ Доступ запрещен</h2><p>У вас нет прав администратора</p></div>';
+        } else {
+            loadComputers();
+            initMiniActivityLog();
+            initAnimations();
+        }
+        
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            
+            // Предотвращение сворачивания
+            window.Telegram.WebApp.isClosingConfirmationEnabled = true;
+            
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    const startY = touch.clientY;
+                    
+                    if (window.scrollY === 0 && startY < 50) {
+                        e.preventDefault();
+                    }
+                }
+            }, { passive: false });
+        }
+        
+        function initAnimations() {
+            gsap.fromTo('.header', 
+                { y: -100, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.7)" }
+            );
+            
+            gsap.fromTo('.main-content', 
+                { y: 50, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.8, delay: 0.2, ease: "back.out(1.7)" }
+            );
+            
+            gsap.fromTo('.bottom-nav', 
+                { y: 100, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.6, delay: 0.4, ease: "back.out(1.7)" }
+            );
+        }
+        
+        // Инициализация мини лога активности
+        function initMiniActivityLog() {
+            activityLogs = [
+                { time: getCurrentTime(), user: 'Система', action: 'Админ панель запущена' },
+                { time: getCurrentTime(), user: 'Админ', action: 'вошел в панель управления' },
+                { time: getCurrentTime(), user: 'Система', action: 'инициализация компонентов' }
+            ];
+            updateAdminTerminal();
+            
+            // Симуляция новых записей каждые 15 секунд
+            setInterval(() => {
+                addRandomActivity();
+            }, 15000);
+        }
+        
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + 
+                   now.getMinutes().toString().padStart(2, '0');
+        }
+        
+        function addActivityLog(user, action) {
+            const newLog = {
+                time: getCurrentTime(),
+                user: user,
+                action: action
+            };
+            
+            activityLogs.unshift(newLog); // Добавляем в начало
+            if (activityLogs.length > 10) {
+                activityLogs = activityLogs.slice(0, 10); // Оставляем только 10 последних
+            }
+            
+            updateAdminTerminal();
+        }
+        
+        function updateMiniActivityLog() {
+            // Функция больше не нужна, но оставляем заглушку для совместимости
+            console.log('Mini activity log disabled');
+        }
+        
+        function updateAdminTerminal() {
+            const container = document.getElementById('admin-terminal-logs');
+            const countElement = document.getElementById('admin-activity-count');
+            
+            if (!container || !activityLogs || activityLogs.length === 0) return;
+            
+            // Показываем последние 5 записей
+            const recentLogs = activityLogs.slice(0, 5);
+            
+            container.innerHTML = recentLogs.map((log, index) => `
+                <div class="admin-log-entry" style="animation-delay: ${index * 0.1}s">
+                    <span class="admin-log-time">[${log.time}]</span>
+                    <span class="admin-log-pc">${log.user}</span>
+                    <span class="admin-log-action">${log.action}</span>
+                </div>
+            `).join('');
+            
+            if (countElement) {
+                countElement.textContent = `${activityLogs.length} операций`;
+            }
+            
+            // Принудительно показываем контейнер
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            }
+        }
+        
+        function addRandomActivity() {
+            const activities = [
+                { user: 'Система', action: 'обновил статус ПК' },
+                { user: 'Система', action: 'проверил подключения' },
+                { user: 'Пользователь', action: 'забронировал ПК' },
+                { user: 'Система', action: 'синхронизация данных' },
+                { user: 'Админ', action: 'просмотр статистики' }
+            ];
+            
+            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+            addActivityLog(randomActivity.user, randomActivity.action);
+        }
+        
+        // Переключение вкладок с анимацией
+        function switchTab(tabName) {
+            // Обновляем табы в шапке
+            document.querySelectorAll('.tabs .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Обновляем нижнюю навигацию
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показываем выбранную вкладку
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+                
+                // Находим соответствующие кнопки и активируем их
+                document.querySelectorAll(`[onclick="switchTab('${tabName}')"]`).forEach(btn => {
+                    btn.classList.add('active');
+                });
+                
+                // Анимация появления контента
+                gsap.fromTo(tabElement, 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+                );
+                
+                // Загружаем данные для вкладки
+                setTimeout(() => {
+                    switch(tabName) {
+                        case 'bookings':
+                            loadBookings(1);
+                            break;
+                        case 'users':
+                            loadUsers(1);
+                            break;
+                        case 'computers':
+                            loadComputers();
+                            break;
+                        case 'tasks':
+                            loadExistingTasks();
+                            break;
+                        case 'points':
+                            break;
+                    }
+                }, 100);
+                
+                addActivityLog('Админ', `перешел в раздел ${getTabName(tabName)}`);
+            }
+        }
+        
+        function getTabName(tabName) {
+            const names = {
+                'computers': 'ПК',
+                'bookings': 'Брони', 
+                'users': 'Пользователи',
+                'tasks': 'Задания',
+                'points': 'Баллы'
+            };
+            return names[tabName] || tabName;
+        }
+        
+        function switchHallAdmin(hall) {
+            currentHallAdmin = hall;
+            
+            document.querySelectorAll('.hall-switcher-admin .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const hallNames = {
+                1: 'Зал 1 - Онлайн игры',
+                2: 'Зал 2 - Смешанный', 
+                3: 'Зал 3 - Ретро'
+            };
+            
+            document.getElementById('currentHallTitle').innerHTML = `
+                <i class="fas fa-desktop"></i>
+                ${hallNames[hall]}
+            `;
+            
+            renderAdminComputers();
+            addActivityLog('Админ', `переключился в ${hallNames[hall]}`);
+        }
+        
+        async function loadComputers() {
+            try {
+                const response = await fetch('api.php?action=computers');
+                computers = await response.json();
+                renderAdminComputers();
+                updateStats();
+            } catch (error) {
+                console.error('Ошибка загрузки компьютеров:', error);
+                addActivityLog('Система', 'ошибка загрузки ПК');
+            }
+        }
+        
+        function renderAdminComputers() {
+            const grid = document.getElementById('adminComputersGrid');
+            if (!grid) return;
+            
+            const startPc = (currentHallAdmin - 1) * 10 + 1;
+            const endPc = currentHallAdmin * 10;
+            
+            grid.innerHTML = '';
+            
+            for (let i = startPc; i <= endPc; i++) {
+                const computer = computers.find(c => c.id === i) || { id: i, status: 'free' };
+                
+                const computerEl = document.createElement('div');
+                computerEl.className = `computer-admin ${computer.status}`;
+                computerEl.onclick = () => openStatusModal(i);
+                
+                let statusText = '';
+                switch (computer.status) {
+                    case 'free': statusText = 'Свободен'; break;
+                    case 'occupied': statusText = 'Занят'; break; 
+                    case 'booked': statusText = 'Бронь'; break;
+                }
+                
+                computerEl.innerHTML = `
+                    <div class="computer-content">
+                        <div class="computer-number">ПК ${i}</div>
+                        <div class="computer-status">${statusText}</div>
+                    </div>
+                `;
+                
+                grid.appendChild(computerEl);
+                
+                // Анимация появления
+                gsap.fromTo(computerEl, 
+                    { opacity: 0, scale: 0.8 },
+                    { opacity: 1, scale: 1, duration: 0.3, delay: (i - startPc) * 0.05, ease: "back.out(1.7)" }
+                );
+            }
+        }
+        
+        function openStatusModal(pcId) {
+            selectedPcId = pcId;
+            document.getElementById('modalPcNumber').textContent = pcId;
+            const modal = document.getElementById('statusModal');
+            modal.classList.add('active');
+            
+            // Анимация появления модального окна
+            gsap.fromTo('.status-modal-content', 
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.7)" }
+            );
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeStatusModal();
+                }
+            });
+        }
+        
+        function closeStatusModal() {
+            const modal = document.getElementById('statusModal');
+            
+            gsap.to('.status-modal-content', {
+                opacity: 0,
+                scale: 0.8,
+                duration: 0.2,
+                ease: "back.in(1.7)",
+                onComplete: () => {
+                    modal.classList.remove('active');
+                }
+            });
+        }
+        
+        async function changeComputerStatusModal(status) {
+            if (!selectedPcId) return;
+            
+            try {
+                const response = await fetch('api.php?action=admin_computer_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ computerId: selectedPcId, status: status })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const statusTexts = {
+                        'free': 'освобожден',
+                        'occupied': 'занят', 
+                        'booked': 'забронирован'
+                    };
+                    
+                    addNotification('pc_status', `🖥️ ПК ${selectedPcId} ${statusTexts[status]}`);
+                    
+                    await loadComputers();
+                    closeStatusModal();
+                    addActivityLog('Админ', `ПК ${selectedPcId} ${statusTexts[status]}`);
+                    showNotification(`ПК ${selectedPcId} ${statusTexts[status]}`, 'success');
+                }
+            } catch (error) {
+                console.error('Ошибка изменения статуса:', error);
+                showNotification('Произошла ошибка', 'error');
+            }
+        }
+        
+        function showNotification(text, type = 'success') {
+            const colors = {
+                success: '#4CAF50',
+                error: '#f44336',
+                info: '#2196F3'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 12px 18px;
+                border-radius: 12px;
+                font-weight: 600;
+                font-size: 13px;
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            `;
+            notification.textContent = text;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        async function loadBookings(page) {
+            try {
+                const container = document.getElementById('bookingsList');
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Загрузка...</p>';
+                
+                const response = await fetch(`api.php?action=admin_bookings&page=${page}`);
+                const data = await response.json();
+                renderBookings(data.bookings);
+                addActivityLog('Система', 'загружены бронирования');
+            } catch (error) {
+                console.error('Ошибка загрузки бронирований:', error);
+                document.getElementById('bookingsList').innerHTML = '<p style="text-align: center; color: var(--accent-red);">Ошибка загрузки</p>';
+            }
+        }
+        
+        async function loadUsers(page) {
+            try {
+                const container = document.getElementById('usersList');
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Загрузка...</p>';
+                
+                const response = await fetch(`api.php?action=admin_users&page=${page}`);
+                const data = await response.json();
+                
+                // Уведомления только для первой загрузки и только если есть новые пользователи за последние 10 минут
+                if (page === 1 && data.users && data.users.length > 0) {
+                    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+                    const newUsers = data.users.filter(user => {
+                        const userDate = new Date(user.created_at);
+                        return userDate > tenMinutesAgo;
+                    });
+                    
+                    newUsers.forEach(user => {
+                        addNotification('new_user', `👤 Новый пользователь: ${user.name || user.first_name || 'Без имени'}`);
+                    });
+                }
+                
+                renderUsers(data.users);
+                addActivityLog('Система', 'загружены пользователи');
+            } catch (error) {
+                console.error('Ошибка загрузки пользователей:', error);
+                document.getElementById('usersList').innerHTML = '<p style="text-align: center; color: var(--accent-red);">Ошибка загрузки</p>';
+            }
+        }
+        
+        async function loadExistingTasks() {
+            const container = document.getElementById('tasksList');
+            if (!container) return;
+
+            try {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Загрузка...</p>';
+
+                const response = await fetch('api.php?action=tasks');
+                if (!response.ok) throw new Error('Network error');
+                const tasks = await response.json();
+
+                renderExistingTasks(tasks);
+                addActivityLog('Система', 'загружены задания');
+            } catch (error) {
+                console.error('Ошибка загрузки заданий:', error);
+                container.innerHTML = '<p style="text-align: center; color: var(--accent-red);">Ошибка загрузки</p>';
+            }
+        }
+        
+        function renderExistingTasks(tasks) {
+            const container = document.getElementById('tasksList');
+            if (!container) return;
+
+            if (!tasks || tasks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Нет заданий</p>';
+                return;
+            }
+
+            container.innerHTML = tasks.map((task, index) => `
+                <div class="task-card" style="animation-delay: ${index * 0.1}s">
+                    <div class="task-header">
+                        <h4 class="task-title">${task.title}</h4>
+                        <button class="delete-btn" onclick="deleteTask(${task.id})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="task-description">${task.description}</div>
+                    ${task.link ? `<div style="margin: 8px 0; font-size: 11px;"><strong>Ссылка:</strong> <a href="${task.link}" target="_blank" style="color: #667eea;">${task.link}</a></div>` : ''}
+                    <div class="task-meta">
+                        <span class="task-reward">${task.points.toLocaleString()} сум</span>
+                        <span class="task-date">${new Date(task.created_at).toLocaleDateString('ru-RU')}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Анимация появления карточек
+            gsap.fromTo('.task-card', 
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.3, stagger: 0.1, ease: "power2.out" }
+            );
+        }
+
+        async function createTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const link = document.getElementById('taskLink').value.trim();
+            const points = parseInt(document.getElementById('taskPoints').value);
+            
+            if (!title || !description || !points) {
+                showNotification('Заполните обязательные поля', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('api.php?action=admin_task_create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, link, points })
+                });
+                
+                if (response.ok) {
+                    addNotification('task_create', `📝 Создано задание: "${title}" (${points} сум)`);
+                    showNotification('Задание создано!', 'success');
+                    document.getElementById('taskTitle').value = '';
+                    document.getElementById('taskDescription').value = '';
+                    document.getElementById('taskLink').value = '';
+                    document.getElementById('taskPoints').value = '';
+                    await loadExistingTasks();
+                    addActivityLog('Админ', `создал задание "${title}"`);
+                }
+            } catch (error) {
+                console.error('Ошибка создания задания:', error);
+                showNotification('Ошибка создания задания', 'error');
+            }
+        }
+        
+        async function deleteTask(taskId) {
+            if (!confirm('Удалить это задание?')) return;
+            
+            try {
+                const response = await fetch(`api.php?action=admin_task_delete&taskId=${taskId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    addNotification('task_delete', `🗑️ Удалено задание ID: ${taskId}`);
+                    await loadExistingTasks();
+                    addActivityLog('Админ', 'удалил задание');
+                    showNotification('Задание удалено', 'success');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления задания:', error);
+                showNotification('Ошибка удаления', 'error');
+            }
+        }
+
+        async function searchUser() {
+            const identifier = document.getElementById('userSearch').value.trim();
+            
+            if (!identifier) {
+                showNotification('Введите номер телефона или username', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`api.php?action=admin_user&identifier=${encodeURIComponent(identifier)}`);
+                const user = await response.json();
+                
+                if (user) {
+                    selectedUser = user;
+                    renderUserSearchResult(user);
+                    addActivityLog('Админ', `найден пользователь ${user.name || user.first_name}`);
+                } else {
+                    document.getElementById('userSearchResult').innerHTML = 
+                        '<p style="text-align: center; color: var(--accent-red);">Пользователь не найден</p>';
+                    document.getElementById('userSearchResult').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Ошибка поиска пользователя:', error);
+                showNotification('Ошибка поиска', 'error');
+            }
+        }
+        
+        async function renderUserSearchResult(user) {
+            const container = document.getElementById('userSearchResult');
+            
+            container.innerHTML = `
+                <div class="user-info">
+                    <h4>Найденный пользователь:</h4>
+                    <p><strong>Имя:</strong> ${user.name || user.first_name || 'Не указано'}</p>
+                    <p><strong>Username:</strong> ${user.username ? '@' + user.username : 'Не указан'}</p>
+                    <p><strong>Телефон:</strong> ${user.phone || 'Не указан'}</p>
+                    <p><strong>Telegram ID:</strong> ${user.telegram_id}</p>
+                    <p><strong>Баллы:</strong> <span style="color: var(--accent-green); font-weight: bold;">${(user.points || 0).toLocaleString()} сум</span></p>
+                    
+                    <div class="points-actions">
+                        <input type="number" class="points-input" id="pointsAmount" placeholder="Количество сум">
+                        <button class="btn btn-success" onclick="modifyPoints('add')">Добавить</button>
+                        <button class="btn btn-danger" onclick="modifyPoints('subtract')">Списать</button>
+                    </div>
+                </div>
+            `;
+            
+            container.style.display = 'block';
+            
+            gsap.fromTo(container, 
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+            );
+        }
+        
+        async function modifyPoints(action) {
+            const amount = parseInt(document.getElementById('pointsAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showNotification('Введите корректное количество', 'error');
+                return;
+            }
+            
+            const reason = prompt(`Причина ${action === 'add' ? 'начисления' : 'списания'}:`);
+            if (!reason) return;
+            
+            try {
+                const response = await fetch('api.php?action=admin_points_modify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: selectedUser.telegram_id,
+                        amount,
+                        action,
+                        reason
+                    })
+                });
+                
+                if (response.ok) {
+                    const actionText = action === 'add' ? 'Добавлено' : 'Списано';
+                    showNotification(`${actionText} ${amount.toLocaleString()} сум`, 'success');
+                    document.getElementById('pointsAmount').value = '';
+                    searchUser();
+                    addActivityLog('Админ', `${actionText.toLowerCase()} ${amount} сум пользователю ${selectedUser.name || selectedUser.first_name}`);
+                }
+            } catch (error) {
+                console.error('Ошибка модификации баллов:', error);
+                showNotification('Ошибка операции', 'error');
+            }
+        }
+        
+        function renderBookings(bookings) {
+            const container = document.getElementById('bookingsList');
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Нет бронирований</p>';
+                return;
+            }
+            
+            container.innerHTML = bookings.map((booking, index) => {
+                const date = new Date(booking.created_at).toLocaleString('ru-RU');
+                const statusColors = {
+                    'pending': '#f39c12',
+                    'confirmed': '#27ae60',
+                    'rejected': '#e74c3c'
+                };
+                const statusTexts = {
+                    'pending': 'Ожидание',
+                    'confirmed': 'Подтверждено',
+                    'rejected': 'Отклонено'
+                };
+                
+                return `
+                    <div class="list-item" style="animation-delay: ${index * 0.1}s">
+                        <h4>Бронь #${booking.id}</h4>
+                        <p><strong>Клиент:</strong> ${booking.user_name}</p>
+                        <p><strong>Телефон:</strong> ${booking.user_phone}</p>
+                        <p><strong>ПК:</strong> #${booking.computer_id}</p>
+                        <p><strong>Статус:</strong> <span style="color: ${statusColors[booking.status]}">${statusTexts[booking.status]}</span></p>
+                        <p><strong>Дата:</strong> ${date}</p>
+                    </div>
+                `;
+            }).join('');
+            
+            gsap.fromTo('.list-item', 
+                { opacity: 0, x: -20 },
+                { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: "power2.out" }
+            );
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('usersList');
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Нет пользователей</p>';
+                return;
+            }
+            // Кнопка скачивания
+            const downloadBtn = `
+                <button class="btn btn-primary" onclick="downloadUsersList()" style="width: 100%; margin-bottom: 20px;">
+                    📥 Скачать список пользователей (TXT)
+                </button>
+            `;
+            container.innerHTML = downloadBtn + users.map((user, index) => {
+            
+                const date = new Date(user.created_at).toLocaleString('ru-RU');
+                
+                let username = 'Не указан';
+                if (user.username && user.username !== 'null' && user.username.trim()) {
+                    username = '@' + user.username;
+                }
+                
+                let emailInfo = 'Не указан';
+                if (user.email) {
+                    emailInfo = user.email + (user.email_verified ? ' ✅' : ' ❌');
+                }
+                
+                let googleInfo = 'Не подключен';
+                if (user.google_connected == 1) {
+                    googleInfo = `✅ ${user.google_name || user.google_email || 'Подключен'}`;
+                }
+                
+                return `
+                    <div class="list-item" style="animation-delay: ${index * 0.1}s">
+                        <h4>${user.name || user.first_name || 'Без имени'}</h4>
+                        <p><strong>Username:</strong> ${username}</p>
+                        <p><strong>Телефон:</strong> ${user.phone || 'Не указан'}</p>
+                        <p><strong>Email:</strong> ${emailInfo}</p>
+                        <p><strong>Google:</strong> ${googleInfo}</p>
+                        <p><strong>Баллы:</strong> <span style="color: var(--accent-green)">${(user.points || 0).toLocaleString()} сум</span></p>
+                        <p><strong>Регистрация:</strong> ${date}</p>
+                        <button class="btn btn-danger" onclick="deleteUser(${user.telegram_id})" style="margin-top: 10px; font-size: 12px; padding: 8px 12px;">
+                            🗑️ Удалить пользователя
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        // Функция скачивания
+        async function downloadUsersList() {
+            try {
+                showNotification('Подготовка файла...', 'info');
+                
+                const response = await fetch('api.php?action=export_users_txt');
+                const blob = await response.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `users_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showNotification('Файл скачан!', 'success');
+                addActivityLog('Админ', 'скачал список пользователей');
+            } catch (error) {
+                console.error('Ошибка скачивания:', error);
+                showNotification('Ошибка скачивания', 'error');
+            }
+        }
+        
+        // Добавьте функцию удаления
+        async function deleteUser(userId) {
+            if (!confirm('Вы уверены? Это действие нельзя отменить!')) return;
+            
+            try {
+                const response = await fetch('api.php?action=emergency_delete_user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Пользователь удален', 'success');
+                    loadUsers(1); // Перезагружаем список
+                    addActivityLog('Админ', `удалил пользователя ID: ${userId}`);
+                } else {
+                    showNotification('Ошибка удаления', 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления пользователя:', error);
+                showNotification('Ошибка удаления', 'error');
+            }
+        }
+        
+        function updateStats() {
+            if (!computers || computers.length === 0) return;
+            
+            // Обновляем статистику
+            const freeComputers = computers.filter(c => c.status === 'free').length;
+            const occupiedComputers = computers.filter(c => c.status === 'occupied').length;
+            
+            const freeElement = document.getElementById('free-pcs');
+            const onlineElement = document.getElementById('online-users');
+            
+            if (freeElement) freeElement.textContent = freeComputers;
+            if (onlineElement) onlineElement.textContent = occupiedComputers;
+            
+            // Анимация обновления цифр
+            if (freeElement) {
+                gsap.fromTo(freeElement, 
+                    { scale: 1.2 },
+                    { scale: 1, duration: 0.3, ease: "back.out(1.7)" }
+                );
+            }
+        }
+        
+        // Автообновление каждые 30 секунд
+        setInterval(() => {
+            const computersTab = document.getElementById('computers');
+            if (computersTab && computersTab.classList.contains('active')) {
+                loadComputers();
+            }
+        }, 30000);
+        
+        // Система уведомлений
+        let notifications = [];
+        let unreadCount = 0;
+        
+        function addNotification(type, message) {
+            const notification = {
+                id: Date.now(),
+                type: type,
+                message: message,
+                time: new Date().toLocaleString('ru-RU'),
+                timestamp: Date.now(),
+                read: false
+            };
+            
+            notifications.unshift(notification);
+            unreadCount++;
+            
+            // Удаляем уведомления старше 7 дней
+            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            notifications = notifications.filter(n => n.timestamp > sevenDaysAgo);
+            
+            saveNotifications();
+            updateNotificationsBadge();
+        }
+        
+        function loadNotifications() {
+            try {
+                const saved = localStorage.getItem('adminNotifications');
+                const savedCount = localStorage.getItem('adminUnreadCount');
+                
+                if (saved) {
+                    notifications = JSON.parse(saved);
+                    // Удаляем старые уведомления при загрузке
+                    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                    notifications = notifications.filter(n => n.timestamp && n.timestamp > sevenDaysAgo);
+                }
+                if (savedCount) {
+                    unreadCount = Math.min(parseInt(savedCount), notifications.length);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки уведомлений:', error);
+                notifications = [];
+                unreadCount = 0;
+            }
+            
+            updateNotificationsBadge();
+        }
+        
+        function saveNotifications() {
+            try {
+                localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+                localStorage.setItem('adminUnreadCount', unreadCount.toString());
+            } catch (error) {
+                console.error('Ошибка сохранения уведомлений:', error);
+            }
+        }
+        
+        function updateNotificationsBadge() {
+            const badge = document.getElementById('notificationsBadge');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        
+        function openNotifications() {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.classList.add('active');
+                renderNotifications();
+                
+                // Отмечаем все как прочитанные
+                unreadCount = 0;
+                notifications.forEach(n => n.read = true);
+                saveNotifications();
+                updateNotificationsBadge();
+            }
+        }
+        
+        function closeNotifications() {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+        
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            if (!container) return;
+            
+            if (notifications.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Нет уведомлений</p>';
+                return;
+            }
+            
+            container.innerHTML = notifications.slice(0, 20).map(notification => `
+                <div class="notification-item">
+                    <div class="notification-time">${notification.time}</div>
+                    <div class="notification-text">${notification.message}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNotifications();
+            initAnimations();
+            if (ADMINS.includes(tgUser?.id)) {
+                loadComputers();
+                loadExistingTasks();
+            }
+        });
+        
+        // Сохранение при закрытии страницы
+        window.addEventListener('beforeunload', function() {
+            saveNotifications();
+        });
+        
+        // Модифицируйте функцию modifyPoints для добавления уведомлений
+        async function modifyPoints(action) {
+            const amount = parseInt(document.getElementById('pointsAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showNotification('Введите корректное количество', 'error');
+                return;
+            }
+            
+            const reason = prompt(`Причина ${action === 'add' ? 'начисления' : 'списания'}:`);
+            if (!reason) return;
+            
+            try {
+                const response = await fetch('api.php?action=admin_points_modify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: selectedUser.telegram_id,
+                        amount,
+                        action,
+                        reason
+                    })
+                });
+                
+                if (response.ok) {
+                    const actionText = action === 'add' ? 'начислено' : 'списано';
+                    const userName = selectedUser.name || selectedUser.first_name || 'Пользователь';
+                    
+                    // Добавляем уведомление
+                    addNotification(
+                        action === 'add' ? 'balance_add' : 'balance_subtract',
+                        `💰 ${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${amount.toLocaleString()} сум пользователю ${userName}. Причина: ${reason}`
+                    );
+                    
+                    showNotification(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${amount.toLocaleString()} сум`, 'success');
+                    document.getElementById('pointsAmount').value = '';
+                    searchUser();
+                    addActivityLog('Админ', `${actionText} ${amount} сум пользователю ${userName}`);
+                }
+            } catch (error) {
+                console.error('Ошибка модификации баллов:', error);
+                showNotification('Ошибка операции', 'error');
+            }
+        }
+        
+        // Также добавьте уведомления для новых пользователей и удаления
+        async function deleteUser(userId) {
+            if (!confirm('Вы уверены? Это действие нельзя отменить!')) return;
+            
+            try {
+                const response = await fetch('api.php?action=emergency_delete_user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addNotification('user_delete', `🗑️ Пользователь ID: ${userId} удален из системы`);
+                    showNotification('Пользователь удален', 'success');
+                    loadUsers(1);
+                    addActivityLog('Админ', `удалил пользователя ID: ${userId}`);
+                } else {
+                    showNotification('Ошибка удаления', 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления пользователя:', error);
+                showNotification('Ошибка удаления', 'error');
+            }
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            initAnimations();
+            // Загружаем начальные данные только если пользователь является админом
+            if (ADMINS.includes(tgUser?.id)) {
+                loadComputers();
+                loadExistingTasks();
+            }
+        });
+        // Добавьте в DOMContentLoaded
+        document.getElementById('userSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.blur(); // Скрываем клавиатуру
+                searchUser();
+            }
+        });
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        // Обработка скролла - удалены ссылки на mini-activity
+        let lastScrollTop = 0;
+        let scrollTimeout;
+        
+        window.addEventListener('scroll', function() {
+            // Код скролла упрощен, так как mini-activity больше нет
+        }, { passive: true });
+
+        // Обработка ошибок
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript error:', e.error);
+            addActivityLog('Система', 'обнаружена ошибка JavaScript');
+        });
+
+        // Предотвращение случайного закрытия
+        window.addEventListener('beforeunload', function(e) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                e.preventDefault();
+                return 'Вы уверены, что хотите покинуть админ панель?';
+            }
+        });
+    </script>
+</body>
+</html>

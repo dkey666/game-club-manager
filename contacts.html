@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https://telegram.org https://api.telegram.org;
+        script-src 'self' 'unsafe-inline' https://telegram.org;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' data: https:;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' https://api.telegram.org;
+        media-src 'self';
+    ">
+    <title>Contacts - DKX Game Club</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&display=swap');
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+        font-family: 'Exo 2', sans-serif;
+        background: var(--tg-theme-bg-color, #0a0a0f);
+        color: var(--tg-theme-text-color, #ffffff);
+        overflow-x: hidden;
+        padding: 0;
+        margin: 0;
+        min-height: 100vh;
+        touch-action: pan-y;
+        line-height: 1.7;
+    }
+    
+    h1, h2, h3 {
+        font-family: 'Exo 2', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 20px 15px;
+        padding-bottom: 80px;
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, 
+            var(--tg-theme-bg-color, #0a0a0f) 0%, 
+            #1a0a2e 50%, 
+            #0a0a0f 100%);
+        min-height: 100vh;
+        position: relative;
+    }
+    
+    .animated-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0.3;
+        z-index: 0;
+    }
+    
+    .animated-bg div {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        animation: float 8s ease-in-out infinite;
+    }
+    
+    .animated-bg div:nth-child(1) {
+        width: 200px;
+        height: 200px;
+        background: var(--tg-theme-button-color, #8b5cf6);
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .animated-bg div:nth-child(2) {
+        width: 250px;
+        height: 250px;
+        background: #ec4899;
+        top: 50%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+    
+    .animated-bg div:nth-child(3) {
+        width: 180px;
+        height: 180px;
+        background: #06b6d4;
+        bottom: 20%;
+        left: 50%;
+        animation-delay: 4s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(20px, -20px) scale(1.1); }
+        50% { transform: translate(-15px, 15px) scale(0.9); }
+        75% { transform: translate(15px, 10px) scale(1.05); }
+    }
+    
+    .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(30, 30, 46, 0.8);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        color: #a78bfa;
+        border-radius: 16px;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-size: 18px;
+        z-index: 1000;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .back-btn:active {
+        transform: scale(0.97);
+        background: rgba(139, 92, 246, 0.2);
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .title {
+        font-size: 2rem;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        margin-bottom: 10px;
+    }
+    
+    .contact-card, .map-container, .social-section {
+        background: rgba(30, 30, 46, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        z-index: 10;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(139, 92, 246, 0.1);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+    
+    .contact-item:hover {
+        background: rgba(139, 92, 246, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 92, 246, 0.3);
+    }
+    
+    .contact-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+    
+    .phone-icon {
+        background: linear-gradient(45deg, #22c55e, #16a34a);
+    }
+    
+    .address-icon {
+        background: linear-gradient(45deg, #ef4444, #dc2626);
+    }
+    
+    .instagram-icon {
+        background: linear-gradient(45deg, #e1306c, #fd5949);
+    }
+    
+    .contact-info h3 {
+        color: #fff;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+    }
+    
+    .contact-info p {
+        color: #a78bfa;
+        margin: 0;
+        line-height: 1.4;
+    }
+    
+    .contact-link {
+        color: #fff;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .contact-link:hover {
+        color: #8b5cf6;
+    }
+    
+    .map-container h2 {
+        color: #fff;
+        margin-bottom: 15px;
+    }
+    
+    .social-section {
+        text-align: center;
+    }
+    
+    .social-section h2 {
+        color: #fff;
+        margin-bottom: 20px;
+    }
+    
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .social-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 25px;
+        background: linear-gradient(45deg, #e1306c, #fd5949);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        box-shadow: 0 0 20px rgba(225, 48, 108, 0.4);
+    }
+    
+    .social-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px rgba(225, 48, 108, 0.6);
+    }
+    
+    @keyframes workingPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    @media (max-width: 480px) {
+        .title {
+            font-size: 1.5rem;
+        }
+        
+        .contact-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+        
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+        }
+        
+        .social-links {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .social-link {
+            width: 200px;
+            justify-content: center;
+        }
+        
+        .back-btn {
+            top: 10px;
+            left: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="bg-gradient">
+        <div class="animated-bg">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+    <button class="back-btn" onclick="goBack()">← <span data-lang="back">Назад</span></button> 
+    <div class="container"> 
+        <div class="header"> 
+            <h1 class="title">📞 Контакты</h1> 
+        </div> 
+        
+        <div class="contact-card"> 
+            <div class="contact-item"> 
+                <div class="contact-icon phone-icon">📞</div> 
+                <div class="contact-info"> 
+                    <h3>Телефон для бронирования</h3> 
+                    <p><a href="tel:+998911865577" class="contact-link">+998 91 186 55 77</a></p> 
+                    <p>Звоните с 09:00 до 01:00</p> 
+                </div> 
+            </div> 
+            
+            <div class="contact-item"> 
+                <div class="contact-icon address-icon">📍</div> 
+                <div class="contact-info"> 
+                    <h3>Наш адрес</h3> 
+                    <p>Наманган, ул. Ислома Каримова, 9А</p> 
+                    <p>Работаем c 10:00 до 02:00</p> 
+                </div> 
+            </div> 
+            
+            <div class="contact-item"> 
+                <div class="contact-icon instagram-icon">📸</div> 
+                <div class="contact-info"> 
+                    <h3>Instagram</h3> 
+                    <p><a href="https://instagram.com/asus_cs.uz" class="contact-link" target="_blank">@asus_cs.uz</a></p> 
+                    <p>Следите за новостями и акциями</p> 
+                </div> 
+            </div> 
+        </div> 
+        
+        <div class="map-container"> 
+            <h2>🗺️ Расположение</h2> 
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 30px; text-align: center;"> 
+                <h3 style="color: var(--primary-blue); margin-bottom: 15px;">📍 Наш адрес</h3> 
+                
+                <p style="color: var(--text-primary); font-size: 16px; margin-bottom: 20px;">Наманган, ул. Ислома Каримова, 9А</p> 
+                
+                <!-- Карта: чуть шире -->
+                <div style="margin: 20px 0;">
+                    <iframe 
+                        src="https://yandex.ru/map-widget/v1/?z=12&ol=biz&oid=35648824703" 
+                        width="100%" 
+                        height="320" 
+                        frameborder="0" 
+                        style="border-radius: 12px; max-width: 620px; margin: 0 auto; display: block;"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;"> 
+                    <a href="https://yandex.uz/maps/-/CLqMbSjX" target="_blank" 
+                       style="color: var(--primary-blue); text-decoration: none; padding: 10px 20px; background: rgba(0, 212, 255, 0.1); border-radius: 10px; border: 1px solid var(--primary-blue);"> 
+                        🗺️ Яндекс.Карты 
+                    </a> 
+                </div> 
+            </div> 
+        </div>
+        
+        <div class="social-section"> 
+            <h2>Мы в социальных сетях</h2> 
+            <div class="social-links"> 
+                <a href="https://instagram.com/asus_cs.uz" class="social-link" target="_blank"> 
+                    📸 Instagram 
+                </a> 
+            </div> 
+        </div> 
+        
+        <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px; text-align: center; margin-top: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;" 
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 20px rgba(40, 167, 69, 0.3)'" 
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"> 
+             
+            <h3 style="color: #00d4ff; margin-bottom: 10px;">⏰ Режим работы</h3> 
+            <p style="color: #a0a0a0;">Круглосуточно, 7 дней в неделю</p> 
+            <p style="color: #28a745; font-weight: bold; margin-top: 10px; animation: workingPulse 2s ease-in-out infinite;">10:00 - 02:00</p> 
+        </div> 
+        
+        <style> 
+            @keyframes workingPulse { 
+                0%, 100% { opacity: 1; } 
+                50% { opacity: 0.7; } 
+            } 
+        </style> 
+    </div>
+    <script>
+        // Инициализация Telegram Web App
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    </div>
+</body>
+</html>

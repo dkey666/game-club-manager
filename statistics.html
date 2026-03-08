@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Statistics - DKX Game Club</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f2f2f7;
+            color: #000000;
+            min-height: 100vh;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        /* Настройки для iframe */
+        body.iframe-mode {
+            margin: 0;
+            padding: 8px;
+            background: #f2f2f7;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            background: transparent;
+            padding: 8px;
+        }
+        /* ДОБАВИТЬ в CSS: */
+        .back-button {
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .back-button:hover {
+            background: #0056cc;
+            transform: translateY(-1px);
+        }
+        
+        .back-button:active {
+            transform: translateY(0);
+        }
+        
+        .header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 16px;
+            background: transparent;
+            padding: 8px;
+            padding-top: 40px; /* Место для кнопки назад */
+        }
+        
+        @media (max-width: 375px) {
+            .back-button {
+                left: 6px;
+                top: 6px;
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+        }
+
+        .title {
+            font-size: 1.2rem;
+            color: #007aff;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #8e8e93;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+        }
+
+        .stat-card {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: #8e8e93;
+            margin-bottom: 6px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+
+        @media (min-width: 768px) {
+            .stat-value {
+                font-size: 1.4rem;
+            }
+        }
+
+        .stat-value.positive {
+            color: #34c759;
+        }
+
+        .stat-value.negative {
+            color: #ff3b30;
+        }
+
+        .stat-value.neutral {
+            color: #007aff;
+        }
+
+        .stat-label {
+            color: #8e8e93;
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .monthly-chart {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            color: #007aff;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            color: #8e8e93;
+            padding: 20px 12px;
+            font-size: 0.85rem;
+        }
+
+        .update-time {
+            text-align: center;
+            color: #8e8e93;
+            font-size: 0.7rem;
+            margin-top: 12px;
+            padding: 0 8px;
+        }
+
+        .error {
+            text-align: center;
+            color: #ff3b30;
+            padding: 20px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-width: 375px) {
+            body {
+                padding: 6px;
+                font-size: 13px;
+            }
+
+            .stats-grid {
+                gap: 6px;
+            }
+
+            .stat-card {
+                padding: 10px 8px;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .stat-title {
+                font-size: 0.7rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="goBack()">← Назад</button>
+            <h1 class="title">Статистика бота</h1>
+            <p>Детальная информация о движении баллов</p>
+        </div>
+        
+        <div id="statisticsContent" class="loading">
+            Загрузка статистики...
+        </div>
+        
+        <div class="update-time" id="updateTime"></div>
+    </div>
+
+    <script>
+        // Проверяем, загружены ли мы в iframe
+        document.addEventListener('DOMContentLoaded', function() {
+            const isInIframe = window.parent !== window;
+            
+            if (isInIframe) {
+                document.body.classList.add('iframe-mode');
+                
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.ready();
+                }
+            }
+        });
+        
+        /* ДОБАВИТЬ в script секцию: */
+        function goBack() {
+            // Проверяем, находимся ли мы в iframe
+            if (window.parent !== window) {
+                // Если в iframe, отправляем сообщение родительскому окну
+                window.parent.postMessage('goBack', '*');
+            } else {
+                // Если не в iframe, возвращаемся в историю браузера
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    // Если нет истории, переходим на главную страницу
+                    window.location.href = '/';
+                }
+            }
+        }
+        
+        // Слушаем сообщения от iframe
+        window.addEventListener('message', function(event) {
+            if (event.data === 'goBack') {
+                // Переключаемся обратно на вкладку ПК
+                switchTab('computers');
+            }
+        });
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('api.php?action=bot_statistics');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Некорректные данные от сервера');
+                }
+                
+                renderStatistics(data);
+                
+                // Показываем время обновления в Ташкентском времени
+                const now = new Date();
+                const tashkentTime = new Date(now.getTime() + 5 * 60 * 60 * 1000);
+                const updateElement = document.getElementById('updateTime');
+                if (updateElement) {
+                    updateElement.textContent = 
+                        `Обновлено: ${tashkentTime.toLocaleString('ru-RU')} (Ташкент)`;
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+                const container = document.getElementById('statisticsContent');
+                if (container) {
+                    container.innerHTML = 
+                        '<div class="error">Ошибка загрузки статистики</div>';
+                }
+            }
+        }
+
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) {
+                return '0';
+            }
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(0) + 'K';
+            }
+            return num.toLocaleString();
+        }
+
+        function renderStatistics(data) {
+            const container = document.getElementById('statisticsContent');
+            if (!container) return;
+
+            // Безопасное получение значений с проверкой
+            const totalTurnover = data.totalTurnover || 0;
+            const totalAdded = data.totalAdded || 0;
+            const totalSubtracted = data.totalSubtracted || 0;
+            const activeUsers = data.activeUsers || 0;
+            const monthlyNet = data.monthlyNet || 0;
+            const averageBalance = data.averageBalance || 0;
+            const monthlyAdded = data.monthlyAdded || 0;
+            const monthlySubtracted = data.monthlySubtracted || 0;
+            const monthlyAddedCount = data.monthlyAddedCount || 0;
+            const monthlySubtractedCount = data.monthlySubtractedCount || 0;
+            const todayOperations = data.todayOperations || 0;
+            const todayTurnover = data.todayTurnover || 0;
+            
+            container.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Общий оборот</div>
+                        <div class="stat-value neutral">${formatNumber(totalTurnover)}</div>
+                        <div class="stat-label">сум за все время</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Всего начислено</div>
+                        <div class="stat-value positive">+${formatNumber(totalAdded)}</div>
+                        <div class="stat-label">сум</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Всего списано</div>
+                        <div class="stat-value negative">-${formatNumber(totalSubtracted)}</div>
+                        <div class="stat-label">сум</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Активных пользователей</div>
+                        <div class="stat-value neutral">${activeUsers}</div>
+                        <div class="stat-label">с балансом > 0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">За этот месяц</div>
+                        <div class="stat-value ${monthlyNet >= 0 ? 'positive' : 'negative'}">
+                            ${monthlyNet >= 0 ? '+' : ''}${formatNumber(monthlyNet)}
+                        </div>
+                        <div class="stat-label">сум нетто</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Средний баланс</div>
+                        <div class="stat-value neutral">${formatNumber(averageBalance)}</div>
+                        <div class="stat-label">сум на пользователя</div>
+                    </div>
+                </div>
+                
+                <div class="monthly-chart">
+                    <div class="chart-title">Статистика за месяц</div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-title">Начислено за месяц</div>
+                            <div class="stat-value positive">+${formatNumber(monthlyAdded)}</div>
+                            <div class="stat-label">операций: ${monthlyAddedCount}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">Списано за месяц</div>
+                            <div class="stat-value negative">-${formatNumber(monthlySubtracted)}</div>
+                            <div class="stat-label">операций: ${monthlySubtractedCount}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">Операций сегодня</div>
+                            <div class="stat-value neutral">${todayOperations}</div>
+                            <div class="stat-label">за текущий день</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">Сегодня оборот</div>
+                            <div class="stat-value neutral">${formatNumber(todayTurnover)}</div>
+                            <div class="stat-label">сум</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Загружаем при открытии страницы
+        loadStatistics();
+        
+        // Обновляем каждые 30 секунд
+        setInterval(loadStatistics, 30000);
+    </script>
+</body>
+</html>

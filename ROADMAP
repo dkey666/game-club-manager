@@ -1,0 +1,24 @@
+# Roadmap
+
+## Near term
+
+- split Telegram webhook logic from frontend rendering
+- move inline styles/scripts into maintainable asset files
+- eliminate duplicated logic between `/` and `/uz`
+- add a reproducible local demo dataset
+- add repository health files such as `CONTRIBUTING.md` and `SECURITY.md`
+
+## Mid term
+
+- introduce database migrations instead of runtime `ALTER TABLE` calls
+- move configuration to a single bootstrap layer
+- add automated smoke tests for API endpoints
+- formalize admin authentication and permission boundaries
+- package deployment for Docker and/or simple VPS hosting
+
+## Longer term
+
+- multi-club / multi-tenant support
+- pluggable payment and CRM integrations
+- analytics dashboard with reporting exports
+- optional AI-assisted admin workflows and moderation helpers

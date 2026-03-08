@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History - DKX Game Club</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 50%, #3a3a3c 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 14px;
+        }
+        
+        /* Мобильная адаптация */
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            min-height: calc(100vh - 30px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-selector {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* Адаптивная шапка с фильтрами */
+        .filter-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        @media (min-width: 480px) {
+            .filter-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (min-width: 600px) {
+            .user-list {
+                gap: 10px;
+                max-height: 200px;
+            }
+        }
+        
+        .user-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #f39c12;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        @media (min-width: 480px) {
+            .user-btn {
+                padding: 8px 12px;
+                border-radius: 8px;
+                font-size: 12px;
+            }
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #f39c12;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        @media (min-width: 480px) {
+            .filter-btn {
+                padding: 8px 15px;
+                border-radius: 8px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Адаптивные карточки истории */
+        .history-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        @media (min-width: 480px) {
+            .history-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+                margin-bottom: 10px;
+                border-radius: 10px;
+                gap: 15px;
+            }
+        }
+        
+        .history-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .history-reason {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+        
+        @media (min-width: 480px) {
+            .history-reason {
+                font-size: 1rem;
+                margin-bottom: 5px;
+            }
+        }
+        
+        .history-details {
+            color: #bdc3c7;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            word-wrap: break-word;
+        }
+        
+        @media (min-width: 480px) {
+            .history-details {
+                font-size: 0.8rem;
+            }
+        }
+        
+        .history-amount {
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: right;
+            word-wrap: break-word;
+        }
+        
+        @media (min-width: 480px) {
+            .history-amount {
+                font-size: 1.1rem;
+                text-align: left;
+                flex-shrink: 0;
+            }
+        }
+        
+        /* Адаптивная прокрутка */
+        .history-container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Заголовки для маленьких экранов */
+        .section-title {
+            color: #f39c12;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        @media (min-width: 480px) {
+            .section-title {
+                margin-bottom: 15px;
+                font-size: 1.1rem;
+                text-align: left;
+            }
+        }
+        
+        /* Скрытие второстепенной информации на очень маленьких экранах */
+        @media (max-width: 320px) {
+            .user-btn small {
+                display: none;
+            }
+            
+            .history-details br {
+                display: none;
+            }
+            
+            .history-details strong {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">📊 История операций</h1>
+            <p>Выберите пользователя для просмотра истории</p>
+        </div>
+        
+        <div class="user-selector">
+            <div class="filter-header">
+                <h3 style="color: #f39c12;">👥 Пользователи:</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="showAllHistory()">📊 Вся история</button>
+                    <button class="filter-btn" onclick="showAdminTransactions()">💸 Начисления</button>
+                </div>
+            </div>
+            <div id="userList" class="user-list">
+                <div class="loading">Загрузка пользователей...</div>
+            </div>
+        </div>
+        
+        <div class="history-container">
+            <div id="historyList" class="loading">
+                Выберите пользователя
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        let selectedUserId = null;
+        let currentMode = 'all'; // 'all' или 'admin'
+        
+        async function loadUsers() {
+            try {
+                const response = await fetch('api.php?action=emergency_get_all_users');
+                const data = await response.json();
+                
+                if (data.success) {
+                    users = data.users.filter(u => u.points > 0 || hasTransactions(u.telegram_id));
+                    renderUsers();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки пользователей:', error);
+            }
+        }
+        
+        function hasTransactions(userId) {
+            return true;
+        }
+        
+        function renderUsers() {
+            const container = document.getElementById('userList');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div>Пользователи не найдены</div>';
+                return;
+            }
+            
+            container.innerHTML = users.map(user => `
+                <button class="user-btn" onclick="selectUser(${user.telegram_id}, '${user.name || user.first_name || 'Пользователь'}')">
+                    ${user.name || user.first_name || 'ID: ' + user.telegram_id}
+                    <small>(${user.points || 0})</small>
+                </button>
+            `).join('');
+        }
+        
+        function showAllHistory() {
+            currentMode = 'all';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('historyList').innerHTML = '<div class="loading">Выберите пользователя</div>';
+            selectedUserId = null;
+            document.querySelectorAll('.user-btn').forEach(btn => btn.classList.remove('active'));
+        }
+        
+        function showAdminTransactions() {
+            currentMode = 'admin';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            loadAdminTransactions();
+        }
+        
+        async function loadAdminTransactions() {
+            document.getElementById('historyList').innerHTML = '<div class="loading">Загрузка начислений и списаний...</div>';
+            
+            try {
+                const response = await fetch('api.php?action=full_history&admin_only=1');
+                const data = await response.json();
+                
+                renderAdminTransactions(data.history);
+            } catch (error) {
+                document.getElementById('historyList').innerHTML = 
+                    '<div style="color: #e74c3c;">Ошибка загрузки</div>';
+            }
+        }
+        
+        function renderAdminTransactions(history) {
+            const container = document.getElementById('historyList');
+            
+            if (!history || history.length === 0) {
+                container.innerHTML = '<div class="loading">Нет операций от админа</div>';
+                return;
+            }
+            
+            const adminOps = history.filter(item => 
+                item.reason !== 'За клики' && !item.reason.includes('клик')
+            );
+            
+            let html = '<h3 class="section-title">💸 Начисления и списания от админа</h3>';
+            
+            adminOps.forEach(item => {
+                const isPositive = item.action === 'add';
+                const sign = isPositive ? '+' : '-';
+                const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
+                const date = new Date(item.created_at + 'Z');
+                const tashkentTime = new Date(date.getTime() + 5 * 60 * 60 * 1000);
+                
+                html += `
+                    <div class="history-item admin-operation">
+                        <div class="history-content">
+                            <div class="history-reason">
+                                ${isPositive ? '💰' : '💸'} ${item.user_name || 'ID: ' + item.user_id}
+                            </div>
+                            <div class="history-details">
+                                <strong>Причина:</strong> ${item.reason}<br>
+                                <strong>Время:</strong> ${tashkentTime.toLocaleString('ru-RU')}<br>
+                                <strong>Тип:</strong> ${isPositive ? 'Начисление' : 'Списание'}
+                            </div>
+                        </div>
+                        <div class="history-amount ${amountClass}">
+                            ${sign}${item.amount.toLocaleString()} сум
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function renderUserHistory(history, userName) {
+            const container = document.getElementById('historyList');
+            
+            if (!history || history.length === 0) {
+                container.innerHTML = `<div class="loading">У пользователя ${userName} нет операций</div>`;
+                return;
+            }
+            
+            const grouped = {};
+            const adminOps = [];
+            
+            history.forEach(item => {
+                if (item.reason === 'За клики' || item.reason.includes('клик')) {
+                    const date = item.created_at.split(' ')[0];
+                    if (!grouped[date]) {
+                        grouped[date] = { amount: 0, count: 0, time: item.created_at };
+                    }
+                    grouped[date].amount += parseInt(item.amount);
+                    grouped[date].count++;
+                } else {
+                    adminOps.push(item);
+                }
+            });
+            
+            let html = `<h3 class="section-title">История: ${userName}</h3>`;
+            
+            Object.keys(grouped).sort().reverse().forEach(date => {
+                const data = grouped[date];
+                const formattedDate = new Date(date).toLocaleDateString('ru-RU');
+                
+                html += `
+                    <div class="history-item clicks-summary">
+                        <div class="history-content">
+                            <div class="history-reason">🖱️ Клики ${formattedDate}</div>
+                            <div class="history-details">
+                                Всего кликов: ${data.count}
+                            </div>
+                        </div>
+                        <div class="history-amount amount-positive">
+                            +${data.amount.toLocaleString()} сум
+                        </div>
+                    </div>
+                `;
+            });
+            
+            adminOps.forEach(item => {
+                const isPositive = item.action === 'add';
+                const sign = isPositive ? '+' : '-';
+                const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
+                const date = new Date(item.created_at + 'Z');
+                const tashkentTime = new Date(date.getTime() + 5 * 60 * 60 * 1000);
+                
+                html += `
+                    <div class="history-item admin-operation">
+                        <div class="history-content">
+                            <div class="history-reason">⚙️ ${item.reason}</div>
+                            <div class="history-details">
+                                ${tashkentTime.toLocaleString('ru-RU')} | Операция админа
+                            </div>
+                        </div>
+                        <div class="history-amount ${amountClass}">
+                            ${sign}${item.amount.toLocaleString()} сум
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        loadUsers();
+    </script>
+</body>
+</html>
