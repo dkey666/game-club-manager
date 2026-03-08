@@ -2,6 +2,8 @@
 
 Open-source Telegram-first platform for gaming club operations, player engagement, and AI-assisted analytics. The project combines a PHP backend, SQLite storage, Telegram bot/webhook flows, a customer-facing WebApp, and an admin panel for bookings, points, tasks, referrals, ranks, daily rewards, and operational statistics.
 
+It is designed for gaming clubs that need more than a simple booking page: the goal is to unify operations, retention mechanics, and decision-support analytics in one extensible open-source system.
+
 ## Why this repository exists
 
 This repository is the public OSS version of the club management platform previously used in production under a private brand/domain. It has been prepared for publication by:
@@ -11,6 +13,10 @@ This repository is the public OSS version of the club management platform previo
 - documenting installation and architecture
 - formalizing PHP and Node dependencies
 - separating local runtime artifacts from source control
+
+## Why it matters
+
+Most gaming club software covers only one narrow layer of the business: bookings, CRM, or messaging. Dkx Game Club OS/Manager is structured to connect these layers inside a Telegram-first workflow that players already use. The result is a system that helps clubs manage computers and bookings, keep users returning through rewards and progression, and understand real usage patterns through analytics rather than guesswork.
 
 ## Core features
 
@@ -31,6 +37,8 @@ Dkx Game Club OS/Manager is designed as an open-source operating system for gami
 On the player side, the system provides a Telegram-connected WebApp where users can book PCs, register profiles, accumulate loyalty points, unlock higher ranks based on total progress, claim daily bonuses, use a tap-to-earn mechanic with a capped daily reward, complete engagement tasks such as subscribing to social channels, and invite friends through referral links to earn additional rewards.
 
 On the operations side, administrators can manage PC statuses, review bookings, track users, assign tasks, adjust balances, and monitor activity through a Telegram-connected admin interface. The platform also includes an AI-oriented analytics layer focused on practical decision support: analyzing user behavior, identifying which halls and individual PCs are booked most often, detecting which days bring the highest visitor traffic, and producing suggestions that help improve retention, utilization, and overall club performance.
+
+This makes the project useful both as a deployable tool and as an open-source foundation. Clubs can adapt it to local workflows, while contributors can extend clear areas such as booking rules, gamified retention logic, analytics prompts, admin tooling, or localization support.
 
 ## Tech stack
 
@@ -140,9 +148,21 @@ Node dependencies are managed through [package.json](package.json).
 - [Changelog](CHANGELOG.md)
 - [Roadmap](ROADMAP)
 
+## Contribution areas
+
+Useful contribution directions include:
+
+- improving booking rules, hall logic, or workstation management flows
+- extending loyalty mechanics such as ranks, daily bonuses, referrals, and task rewards
+- refining admin tooling and operational dashboards
+- expanding analytics prompts, reporting structure, and data coverage
+- hardening deployment, installation, and documentation for wider OSS adoption
+
 ## AI analytics module
 
 The repository includes a lightweight analytics module that reads the SQLite database, aggregates club metrics, and can send them to the OpenAI API for a structured report.
+
+Its purpose is to turn raw club activity into actionable signals for administrators. Even in the lightweight version, the module is aimed at questions that matter operationally: which halls and PCs attract the most bookings, when traffic is highest, how engagement systems are being used, and which improvements could increase retention or workstation utilization.
 
 Metrics-only mode:
 
@@ -161,6 +181,14 @@ Optional flags:
 - `--db=club.db` to point to another SQLite file
 - `--json` to print JSON instead of a console report
 - `--save=reports/latest.txt` to write the output to a file
+
+Current lightweight coverage includes:
+
+- user counts, registrations, and points balances
+- booking volumes, hall demand, top PCs, and busiest weekdays
+- task completion activity
+- referral and reward usage
+- points economy and rank distribution
 
 ## Screenshots
 
