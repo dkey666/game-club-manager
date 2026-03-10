@@ -1,6 +1,6 @@
 <div align="center">
 
-# Dkx Game Club OS/Manager
+# Game Club OS/Manager
 
 <img src="https://readme-typing-svg.demolab.com?font=Exo+2&weight=700&size=22&duration=2600&pause=1000&color=00C2FF&center=true&vCenter=true&width=980&lines=Telegram-first+gaming+club+operating+system;Bookings%2C+rewards%2C+ranks%2C+tasks%2C+referrals;Admin+workflows+%2B+AI-assisted+analytics;Open-source+foundation+for+gaming+club+operations" alt="Project tagline animation" />
 
